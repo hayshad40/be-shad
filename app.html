@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BE SHAD TRADER — POS, Inventory & Accounting</title>
+<style>
+:root{--bg:#F3F5F8;--sf:#fff;--sf2:#EDF1F5;--ink:#0E2238;--mut:#5B6B7F;--line:#DCE2EA;--br:#0E3A5F;--brink:#fff;--ac:#F2A413;--acink:#2A1C00;--gd:#1B8F5F;--bd:#C2453A;--wn:#B9770E;--side:#0E2A47;--sideink:#C9D8E8;--sh:0 1px 2px rgba(14,34,56,.06),0 6px 20px rgba(14,34,56,.06)}
+[data-theme=dark]{--bg:#0A1522;--sf:#101F31;--sf2:#15283D;--ink:#EAF0F7;--mut:#9FB0C4;--line:#22364D;--br:#5BA3DB;--brink:#06121F;--gd:#3FC68C;--bd:#E5776C;--wn:#E0A84A;--side:#0B1B2E;--sh:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.3)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+h1,h2,h3{margin:0;letter-spacing:-.01em}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ac);outline-offset:1px}
+#app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+#side{background:var(--side);color:var(--sideink);position:sticky;top:0;height:100vh;overflow-y:auto;padding:16px 12px;display:flex;flex-direction:column;gap:4px;z-index:40}
+.brand{display:flex;gap:10px;align-items:center;color:#fff;font-weight:800;letter-spacing:.03em;padding:4px 8px 16px}
+.brand small{display:block;font-size:10px;font-weight:600;letter-spacing:.12em;color:var(--sideink);opacity:.8}
+#side a{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;color:var(--sideink);text-decoration:none;font-weight:600}
+#side a:hover{background:rgba(255,255,255,.07)}
+#side a.on{background:var(--ac);color:var(--acink)}
+.main{min-width:0;display:flex;flex-direction:column}
+.top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 20px}
+.top h1{font-size:20px;white-space:nowrap}
+.gs{position:relative;flex:1;max-width:420px;margin-left:auto}
+.gs input{width:100%}
+#gres{position:absolute;left:0;right:0;top:100%;margin-top:6px;background:var(--sf);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh);overflow:hidden}
+#gres button{display:flex;gap:10px;width:100%;text-align:left;border:0;background:none;padding:10px 14px;cursor:pointer}
+#gres button:hover{background:var(--sf2)}
+#gres small{color:var(--mut);min-width:70px}
+#view{padding:20px;max-width:1500px;width:100%}
+.ib{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--sf);cursor:pointer;display:none;place-items:center}
+.ib.show{display:grid}
+.b{border:0;border-radius:10px;padding:10px 16px;font-weight:700;cursor:pointer;background:var(--sf2);color:var(--ink)}
+.b:hover{filter:brightness(.96)}
+.b-p{background:var(--br);color:var(--brink)}
+.b-a{background:var(--ac);color:var(--acink)}
+.b-d{background:color-mix(in srgb,var(--bd) 16%,transparent);color:var(--bd)}
+.b-s{padding:5px 10px;font-size:13px;border-radius:8px}
+.in{border:1px solid var(--line);background:var(--sf);border-radius:10px;padding:9px 12px;min-width:0}
+.in:focus{border-color:var(--br)}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mut);font-weight:600}
+label.f .in{font-size:15px;color:var(--ink);font-weight:400}
+label.f .in{width:100%}
+.fg>*{min-width:0}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.bar .grow{flex:1;min-width:180px}
+.sp{margin-left:auto}
+.tabs{display:inline-flex;flex-wrap:wrap;background:var(--sf2);border-radius:10px;padding:3px;gap:2px}
+.tabs button{border:0;background:none;padding:7px 12px;border-radius:8px;font-weight:700;font-size:13.5px;color:var(--mut);cursor:pointer}
+.tabs button[aria-pressed=true]{background:var(--sf);color:var(--ink);box-shadow:var(--sh)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.card{background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.card span{display:block;color:var(--mut);font-size:13px;font-weight:600}
+.card strong{display:block;font-size:22px;margin-top:4px;font-variant-numeric:tabular-nums}
+.panel{background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+.panel h3{font-size:15px;margin-bottom:12px}
+.two{display:grid;grid-template-columns:1.6fr 1fr;gap:16px}
+.two>.panel{margin:0}
+.tw{overflow-x:auto;background:var(--sf);border:1px solid var(--line);border-radius:14px}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{background:var(--sf2);color:var(--mut);font-size:12.5px;text-align:left;padding:10px 12px;white-space:nowrap}
+.tbl td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:middle}
+.tbl .r,.r{text-align:right;font-variant-numeric:tabular-nums}
+.tbl tfoot td{font-weight:800;background:var(--sf2)}
+.empty{padding:36px;text-align:center;color:var(--mut);background:var(--sf);border:1px dashed var(--line);border-radius:14px}
+.bdg{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:700;background:var(--sf2);color:var(--mut)}
+.bdg.ok{background:color-mix(in srgb,var(--gd) 16%,transparent);color:var(--gd)}
+.bdg.bad{background:color-mix(in srgb,var(--bd) 16%,transparent);color:var(--bd)}
+.bdg.wn{background:color-mix(in srgb,var(--wn) 18%,transparent);color:var(--wn)}
+.up{color:var(--gd)}.dn{color:var(--bd)}
+.bars{display:flex;align-items:flex-end;gap:4px;height:170px}
+.bars div{flex:1;min-width:6px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:10px;color:var(--mut)}
+.bars i{display:block;width:100%;background:var(--br);border-radius:4px 4px 0 0;min-height:2px}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.list li:last-child{border:0}
+.banner{background:color-mix(in srgb,var(--ac) 20%,var(--sf));border:1px solid var(--ac);border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+/* POS */
+.pos{display:grid;grid-template-columns:1fr 400px;gap:16px;align-items:start}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.pgrid button{text-align:left;background:var(--sf);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-height:92px}
+.pgrid button:hover{border-color:var(--br)}
+.pgrid button:disabled{opacity:.45;cursor:not-allowed}
+.pgrid b{font-size:14px;line-height:1.25}
+.pgrid em{font-style:normal;font-weight:800;color:var(--br);margin-top:auto}
+.pgrid small{color:var(--mut)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chips button{border:1px solid var(--line);background:var(--sf);border-radius:99px;padding:5px 12px;font-size:13px;font-weight:600;cursor:pointer}
+.chips button[aria-pressed=true]{background:var(--br);color:var(--brink);border-color:var(--br)}
+.cart{background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:14px;position:sticky;top:76px;display:flex;flex-direction:column;gap:10px}
+.cl{display:grid;grid-template-columns:1fr 64px 84px 26px;gap:6px;align-items:center;font-size:13.5px}
+.cl .in{padding:6px 8px;width:100%}
+.cl-w{max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.tot{display:flex;justify-content:space-between;font-size:14px}
+.tot.big{font-size:22px;font-weight:800}
+/* modal */
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--sf);color:var(--ink);padding:0;width:min(560px,calc(100% - 24px));box-shadow:0 30px 80px rgba(0,0,0,.4);max-height:92vh}
+dialog.wide{width:min(900px,calc(100% - 24px))}
+dialog::backdrop{background:rgba(6,14,24,.55)}
+.mh{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
+.mh h3{font-size:18px}
+#mb{padding:18px 20px;overflow-y:auto;max-height:64vh}
+.mf{display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--line)}
+#toasts{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;z-index:100}
+.toast{background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:10px;box-shadow:var(--sh);font-weight:600;max-width:340px}
+.toast.err{background:var(--bd);color:#fff}
+/* invoice */
+.inv{font-size:13.5px;color:#111;background:#fff;padding:18px;border-radius:8px;border:1px solid #ddd}
+.inv h2{font-size:20px;margin:0}.inv h3{margin:0;font-size:18px;letter-spacing:.1em}
+.inv-h{display:flex;justify-content:space-between;gap:16px;border-bottom:2px solid #0E3A5F;padding-bottom:10px;margin-bottom:10px}
+.inv table{width:100%;border-collapse:collapse;margin:10px 0}
+.inv th,.inv td{padding:6px 8px;border-bottom:1px solid #e3e3e3;text-align:left}
+.inv .r{text-align:right}
+.inv .sum{margin-left:auto;width:min(260px,100%)}
+.inv .sum div{display:flex;justify-content:space-between;padding:3px 0}
+.inv .ft{margin-top:14px;color:#555;text-align:center}
+#printArea{display:none}
+@media print{body>*:not(#printArea){display:none!important}#printArea{display:block!important}.inv{border:0;padding:0}}
+#bottom{display:none}
+@media(max-width:1100px){.pos{grid-template-columns:1fr}.cart{position:static}.two{grid-template-columns:1fr}}
+@media(max-width:900px){
+  #app{grid-template-columns:1fr}
+  #side{position:fixed;left:0;top:0;bottom:0;width:250px;transform:translateX(-100%);transition:transform .2s}
+  #side.open{transform:none}
+  .ib{display:grid}
+  #view{padding:14px 14px 90px}
+  .top{padding:10px 14px}
+  .top h1{font-size:17px}
+  #bottom{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;bottom:0;left:0;right:0;background:var(--sf);border-top:1px solid var(--line);z-index:35;padding-bottom:env(safe-area-inset-bottom,0px)}
+  #bottom a{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 0;font-size:11px;font-weight:700;color:var(--mut);text-decoration:none}
+  #bottom a.on{color:var(--br)}
+  #bottom span{font-size:18px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="side" aria-label="Main menu">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="9" fill="#F2A413"/><rect x="9" y="8" width="5" height="20" rx="1.5" fill="#0E2A47"/><path d="M14 8h6.5a5 5 0 0 1 0 10H14M14 18h7.5a5 5 0 0 1 0 10H14" fill="none" stroke="#0E2A47" stroke-width="4.4" stroke-linejoin="round"/></svg>
+      <div>BE SHAD TRADER<small>POS · INVENTORY · ACCOUNTS</small></div>
+    </div>
+    <nav id="nav"></nav>
+  </aside>
+  <div class="main">
+    <header class="top">
+      <button class="ib" id="burger" aria-label="Open menu">☰</button>
+      <h1 id="title">Dashboard</h1>
+      <div class="gs"><input class="in" id="gsearch" placeholder="Search products, customers, invoices…" autocomplete="off" aria-label="Global search"><div id="gres" hidden></div></div>
+      <button class="ib show" id="theme" aria-label="Switch theme">◐</button>
+    </header>
+    <main id="view"></main>
+  </div>
+</div>
+<nav id="bottom" aria-label="Quick menu"></nav>
+<dialog id="modal"><div class="mh"><h3 id="mt"></h3><button class="b b-s" id="mx" aria-label="Close">✕</button></div><div id="mb"></div><div class="mf"><button class="b" id="mc">Cancel</button><button class="b b-p" id="mok">Save</button></div></dialog>
+<div id="toasts" aria-live="polite"></div>
+<div id="printArea"></div>
+
+<script>
+'use strict';
+/*CORE-START*/
+const $=(s,r)=>(r||document).querySelector(s);
+const $$=(s,r)=>Array.from((r||document).querySelectorAll(s));
+const KEY='bst_app_v1';
+let memStore=null,persist=true;
+const store={
+  get(){try{return localStorage.getItem(KEY)}catch(e){persist=false;return memStore}},
+  set(v){try{localStorage.setItem(KEY,v)}catch(e){persist=false;memStore=v}}
+};
+const r2=n=>Math.round((Number(n)||0)*100)/100;
+const r3=n=>Math.round((Number(n)||0)*1000)/1000;
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ymd=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*60000);return z.toISOString().slice(0,10)};
+const pd=s=>{const a=String(s).split('-');return new Date(+a[0],+a[1]-1,+a[2])};
+const addDays=(d,n)=>{const x=new Date(d.getTime());x.setDate(x.getDate()+n);return x};
+const today=()=>ymd(new Date());
+const dayOff=n=>ymd(addDays(new Date(),n));
+const daysBetween=(a,b)=>Math.round((pd(b)-pd(a))/864e5);
+const ACCTS=[['1000','Cash in Hand','asset'],['1010','Bank Account','asset'],['1100','Accounts Receivable','asset'],['1200','Inventory','asset'],['2000','Accounts Payable','liability'],['2100','Sales Tax Payable','liability'],['3000',"Owner's Equity",'equity'],['4000','Sales Revenue','income'],['4100','Sales Returns','income'],['5000','Cost of Goods Sold','expense'],['5100','Stock Loss & Adjustments','expense'],['6000','Rent','expense'],['6010','Electricity','expense'],['6020','Fuel','expense'],['6030','Salary','expense'],['6040','Transport','expense'],['6050','Maintenance','expense'],['6060','Marketing','expense'],['6070','Office Expenses','expense'],['6099','Other Expenses','expense']];
+const fresh=()=>({v:1,seq:1,n:{inv:1,pur:1,rcp:1,pay:1},settings:{name:'Be Shad Trader',address:'',phone:'',email:'',currency:'Rs',taxRate:0,invPrefix:'INV-',footer:'Thank you for your business.',allowNegative:false},accounts:ACCTS.map(a=>({code:a[0],name:a[1],type:a[2]})),journal:[],products:[],customers:[],suppliers:[],sales:[],purchases:[],movements:[],payments:[],expenses:[],orders:[]});
+let S;
+try{const raw=store.get();S=raw?Object.assign(fresh(),JSON.parse(raw)):fresh();S.settings=Object.assign(fresh().settings,S.settings)}catch(e){S=fresh()}
+const save=()=>store.set(JSON.stringify(S));
+const uid=()=>S.seq++;
+const money=n=>S.settings.currency+' '+r2(n).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});
+const qty=n=>r3(n).toLocaleString('en-US',{maximumFractionDigits:3});
+const prod=id=>S.products.find(p=>p.id===id);
+const cust=id=>S.customers.find(c=>c.id===id);
+const supp=id=>S.suppliers.find(c=>c.id===id);
+const acct=code=>S.accounts.find(a=>a.code===code);
+const payAcc=m=>m==='cash'?'1000':'1010';
+const dueOf=s=>r2(s.total-s.paid-(s.credited||0));
+const pDueOf=p=>r2(p.total-p.paid-(p.credited||0));
+const custBalance=c=>r2(c.opening+S.sales.filter(s=>s.customerId===c.id).reduce((a,s)=>a+dueOf(s),0));
+const supBalance=c=>r2(c.opening+S.purchases.filter(p=>p.supplierId===c.id).reduce((a,p)=>a+pDueOf(p),0));
+
+function post(date,ref,memo,lines){
+  lines=lines.map(l=>({acc:l.acc,dr:r2(l.dr),cr:r2(l.cr)})).filter(l=>l.dr||l.cr);
+  const d=r2(lines.reduce((a,l)=>a+l.dr,0)),c=r2(lines.reduce((a,l)=>a+l.cr,0));
+  if(d!==c)throw new Error('Journal entry is not balanced ('+d+' vs '+c+')');
+  if(!lines.length)return;
+  S.journal.push({id:uid(),date,ref,memo,lines});
+}
+function acctTotals(code,f,t){
+  let dr=0,cr=0;
+  for(const j of S.journal){
+    if(f&&j.date<f)continue;if(t&&j.date>t)continue;
+    for(const l of j.lines)if(l.acc===code){dr+=l.dr;cr+=l.cr}
+  }
+  return{dr:r2(dr),cr:r2(cr)};
+}
+function natBal(a,f,t){const x=acctTotals(a.code,f,t);return r2((a.type==='asset'||a.type==='expense')?x.dr-x.cr:x.cr-x.dr)}
+function move(pid,type,q,ref,note,date){
+  const p=prod(pid);p.stock=r3(p.stock+q);
+  S.movements.push({id:uid(),date:date||today(),pid,type,qty:r3(q),ref:ref||'',note:note||''});
+}
+function createProduct(o){
+  const name=String(o.name||'').trim();if(!name)throw new Error('Product name is required');
+  const sku=String(o.sku||'').trim()||('P'+String(S.seq).padStart(4,'0'));
+  if(S.products.some(p=>p.sku.toLowerCase()===sku.toLowerCase()))throw new Error('SKU already exists: '+sku);
+  const p={id:uid(),name,sku,barcode:String(o.barcode||'').trim(),category:String(o.category||'').trim()||'General',brand:o.brand||'',unit:o.unit||'pcs',cost:+o.cost||0,price:+o.price||0,wholesale:+o.wholesale||+o.price||0,min:+o.min||0,stock:0,active:true};
+  S.products.push(p);
+  const st=+o.stock||0;
+  if(st>0){move(p.id,'Opening Stock',st,'OPEN','',o.date);post(o.date||today(),'OPEN','Opening stock: '+name,[{acc:'1200',dr:st*p.cost},{acc:'3000',cr:st*p.cost}])}
+  return p;
+}
+function createParty(kind,o){
+  const name=String(o.name||'').trim();if(!name)throw new Error('Name is required');
+  const list=kind==='c'?S.customers:S.suppliers;
+  const op=r2(+o.opening||0);
+  const c={id:uid(),name,company:o.company||'',phone:o.phone||'',whatsapp:o.whatsapp||'',email:o.email||'',address:o.address||'',city:o.city||'',area:o.area||'',creditLimit:+o.creditLimit||0,opening:op,openingInit:op};
+  list.push(c);
+  if(op>0){
+    if(kind==='c')post(o.date||today(),'OPEN','Opening balance: '+name,[{acc:'1100',dr:op},{acc:'3000',cr:op}]);
+    else post(o.date||today(),'OPEN','Opening balance: '+name,[{acc:'3000',dr:op},{acc:'2000',cr:op}]);
+  }
+  return c;
+}
+function createSale(o){
+  if(!o.items||!o.items.length)throw new Error('Add at least one item');
+  const items=o.items.map(it=>{
+    const p=prod(it.pid);if(!p)throw new Error('Product not found');
+    const q=+it.qty;if(!(q>0))throw new Error('Invalid quantity for '+p.name);
+    if(!S.settings.allowNegative&&p.stock<q)throw new Error('Not enough stock for '+p.name+' (available '+qty(p.stock)+')');
+    return{pid:p.id,name:p.name,unit:p.unit,qty:q,price:+it.price||0,cost:p.cost,returned:0};
+  });
+  const subtotal=r2(items.reduce((a,i)=>a+i.qty*i.price,0));
+  const discount=r2(Math.min(Math.max(+o.discount||0,0),subtotal));
+  const rev=r2(subtotal-discount);
+  const taxRate=+o.taxRate||0;
+  const tax=r2(rev*taxRate/100);
+  const total=r2(rev+tax);
+  const paid=r2(Math.min(Math.max(+o.paid||0,0),total));
+  const due=r2(total-paid);
+  if(due>0){
+    if(!o.customerId)throw new Error('Select a customer for a credit or partial payment sale');
+    const c=cust(o.customerId);
+    if(c.creditLimit>0&&custBalance(c)+due>c.creditLimit)throw new Error('Credit limit exceeded for '+c.name+' (limit '+money(c.creditLimit)+')');
+  }
+  const no=S.settings.invPrefix+String(S.n.inv++).padStart(5,'0');
+  const cogs=r2(items.reduce((a,i)=>a+i.qty*i.cost,0));
+  const date=o.date||today();
+  const s={id:uid(),no,date,customerId:o.customerId||null,items,subtotal,discount,taxRate,tax,total,paid,paid0:paid,method:o.method||'cash',credited:0,cogs,note:o.note||'',returns:[]};
+  S.sales.push(s);
+  items.forEach(i=>move(i.pid,'Sale',-i.qty,no,'',date));
+  post(date,no,'Sales invoice '+no,[{acc:payAcc(s.method),dr:paid},{acc:'1100',dr:due},{acc:'4000',cr:rev},{acc:'2100',cr:tax},{acc:'5000',dr:cogs},{acc:'1200',cr:cogs}]);
+  return s;
+}
+function saleReturn(sid,qs,method,date){
+  const s=S.sales.find(x=>x.id===sid);date=date||today();
+  let net=0,cg=0;const ret=[];
+  s.items.forEach((it,i)=>{
+    const q=+qs[i]||0;if(q<=0)return;
+    if(q>it.qty-it.returned+1e-9)throw new Error('Return quantity too high for '+it.name);
+    net+=q*it.price;cg+=q*it.cost;ret.push({i,q});
+  });
+  if(!ret.length)throw new Error('Enter a quantity to return');
+  const f=s.subtotal?1-s.discount/s.subtotal:1;
+  const rev=r2(net*f),tax=r2(rev*s.taxRate/100),tot=r2(rev+tax);
+  const credit=r2(Math.min(dueOf(s),tot)),refund=r2(tot-credit);
+  cg=r2(cg);
+  ret.forEach(x=>{const it=s.items[x.i];it.returned=r3(it.returned+x.q);move(it.pid,'Sale Return',x.q,s.no,'',date)});
+  s.credited=r2((s.credited||0)+credit);
+  s.returns.push({date,rev,tax,tot,credit,refund});
+  post(date,s.no,'Sales return '+s.no,[{acc:'4100',dr:rev},{acc:'2100',dr:tax},{acc:'1100',cr:credit},{acc:payAcc(method||'cash'),cr:refund},{acc:'1200',dr:cg},{acc:'5000',cr:cg}]);
+}
+function createPurchase(o){
+  if(!o.items||!o.items.length)throw new Error('Add at least one item');
+  const items=o.items.map(it=>{
+    const p=prod(it.pid);if(!p)throw new Error('Select a product in every row');
+    const q=+it.qty,c=+it.cost;
+    if(!(q>0))throw new Error('Invalid quantity for '+p.name);
+    if(!(c>=0))throw new Error('Invalid cost for '+p.name);
+    return{pid:p.id,name:p.name,qty:q,cost:c,uc:c,returned:0};
+  });
+  const gross=r2(items.reduce((a,i)=>a+i.qty*i.cost,0));
+  const discount=r2(Math.min(Math.max(+o.discount||0,0),gross));
+  const total=r2(gross-discount),f=gross?total/gross:1;
+  const paid=r2(Math.min(Math.max(+o.paid||0,0),total)),due=r2(total-paid);
+  if(due>0&&!o.supplierId)throw new Error('Select a supplier for a credit or partial payment purchase');
+  const no='PUR-'+String(S.n.pur++).padStart(5,'0'),date=o.date||today();
+  items.forEach(i=>{
+    i.uc=i.cost*f;const p=prod(i.pid),base=Math.max(p.stock,0);
+    p.cost=(base+i.qty)>0?(base*p.cost+i.qty*i.uc)/(base+i.qty):i.uc;
+    move(p.id,'Purchase',i.qty,no,'',date);
+  });
+  const pu={id:uid(),no,date,supplierId:o.supplierId||null,ref:o.ref||'',items,gross,discount,total,paid,paid0:paid,method:o.method||'cash',credited:0,returns:[]};
+  S.purchases.push(pu);
+  post(date,no,'Purchase invoice '+no,[{acc:'1200',dr:total},{acc:payAcc(pu.method),cr:paid},{acc:'2000',cr:due}]);
+  return pu;
+}
+function purchaseReturn(pid,qs,method,date){
+  const pu=S.purchases.find(x=>x.id===pid);date=date||today();
+  let val=0;const ret=[];
+  pu.items.forEach((it,i)=>{
+    const q=+qs[i]||0;if(q<=0)return;
+    if(q>it.qty-it.returned+1e-9)throw new Error('Return quantity too high for '+it.name);
+    const p=prod(it.pid);
+    if(!S.settings.allowNegative&&p.stock<q)throw new Error('Not enough stock to return '+it.name);
+    val+=q*it.uc;ret.push({i,q});
+  });
+  if(!ret.length)throw new Error('Enter a quantity to return');
+  val=r2(val);
+  const credit=r2(Math.min(pDueOf(pu),val)),refund=r2(val-credit);
+  ret.forEach(x=>{const it=pu.items[x.i];it.returned=r3(it.returned+x.q);move(it.pid,'Purchase Return',-x.q,pu.no,'',date)});
+  pu.credited=r2((pu.credited||0)+credit);
+  pu.returns.push({date,val,credit,refund});
+  post(date,pu.no,'Purchase return '+pu.no,[{acc:'2000',dr:credit},{acc:payAcc(method||'cash'),dr:refund},{acc:'1200',cr:val}]);
+}
+function receive(cid,amount,method,date,note){
+  amount=r2(amount);const c=cust(cid);const bal=custBalance(c);
+  if(!(amount>0))throw new Error('Enter an amount');
+  if(amount>bal+0.004)throw new Error('Amount is more than the balance of '+money(bal));
+  let left=amount;const uo=Math.min(left,c.opening);c.opening=r2(c.opening-uo);left=r2(left-uo);
+  S.sales.filter(s=>s.customerId===cid).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.id-b.id).forEach(s=>{
+    if(left<=0)return;const d=dueOf(s);if(d<=0)return;const a=Math.min(d,left);s.paid=r2(s.paid+a);left=r2(left-a);
+  });
+  const no='RCP-'+String(S.n.rcp++).padStart(5,'0');
+  S.payments.push({id:uid(),no,type:'in',partyId:cid,amount,method,date:date||today(),note:note||''});
+  post(date||today(),no,'Payment received '+no,[{acc:payAcc(method),dr:amount},{acc:'1100',cr:amount}]);
+}
+function paySupplier(sid,amount,method,date,note){
+  amount=r2(amount);const c=supp(sid);const bal=supBalance(c);
+  if(!(amount>0))throw new Error('Enter an amount');
+  if(amount>bal+0.004)throw new Error('Amount is more than the balance of '+money(bal));
+  let left=amount;const uo=Math.min(left,c.opening);c.opening=r2(c.opening-uo);left=r2(left-uo);
+  S.purchases.filter(p=>p.supplierId===sid).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.id-b.id).forEach(p=>{
+    if(left<=0)return;const d=pDueOf(p);if(d<=0)return;const a=Math.min(d,left);p.paid=r2(p.paid+a);left=r2(left-a);
+  });
+  const no='PAY-'+String(S.n.pay++).padStart(5,'0');
+  S.payments.push({id:uid(),no,type:'out',partyId:sid,amount,method,date:date||today(),note:note||''});
+  post(date||today(),no,'Supplier payment '+no,[{acc:'2000',dr:amount},{acc:payAcc(method),cr:amount}]);
+}
+function addExpense(o){
+  const amount=r2(o.amount);if(!(amount>0))throw new Error('Enter an amount');
+  const a=acct(o.acc);if(!a)throw new Error('Select a category');
+  const e={id:uid(),date:o.date||today(),acc:o.acc,amount,method:o.method||'cash',note:o.note||'',voided:false};
+  S.expenses.push(e);
+  post(e.date,'EXP-'+e.id,'Expense: '+a.name+(e.note?' – '+e.note:''),[{acc:e.acc,dr:amount},{acc:payAcc(e.method),cr:amount}]);
+  return e;
+}
+function voidExpense(id){
+  const e=S.expenses.find(x=>x.id===id);if(!e||e.voided)return;
+  e.voided=true;
+  post(today(),'EXP-'+e.id,'Reversal of expense EXP-'+e.id,[{acc:payAcc(e.method),dr:e.amount},{acc:e.acc,cr:e.amount}]);
+}
+function adjustStock(pid,delta,type,reason){
+  const p=prod(pid);delta=r3(delta);
+  if(!delta)throw new Error('Enter a quantity');
+  if(!S.settings.allowNegative&&p.stock+delta<0)throw new Error('Stock cannot go below zero');
+  move(pid,type,delta,'ADJ',reason);
+  const v=r2(Math.abs(delta)*p.cost);
+  if(delta>0)post(today(),'ADJ','Stock adjustment: '+p.name,[{acc:'1200',dr:v},{acc:'5100',cr:v}]);
+  else post(today(),'ADJ',type+': '+p.name,[{acc:'5100',dr:v},{acc:'1200',cr:v}]);
+}
+function manualJournal(date,memo,lines){post(date||today(),'JV-'+S.seq,memo||'Manual journal',lines)}
+function stockValue(){return r2(S.products.reduce((a,p)=>a+p.stock*p.cost,0))}
+function loadDemo(){
+  S=fresh();S.settings.name='Be Shad Trader Demo';
+  let seed=42;const rnd=()=>{seed=(seed*1664525+1013904223)%4294967296;return seed/4294967296};
+  const pick=a=>a[Math.floor(rnd()*a.length)];
+  post(dayOff(-45),'OPEN','Opening capital',[{acc:'1000',dr:800000},{acc:'1010',dr:1500000},{acc:'3000',cr:2300000}]);
+  const P=[['Cooking Oil 5L','Oil & Ghee','ltr',2050,2300,2220],['Cooking Oil 1L','Oil & Ghee','ltr',430,480,460],['Ghee 1kg','Oil & Ghee','kg',720,790,760],['Basmati Rice 10kg','Grains','bag',2900,3250,3120],['Flour 20kg','Grains','bag',1750,1900,1850],['Lentils 1kg','Grains','kg',290,330,315],['Chickpeas 1kg','Grains','kg',260,300,285],['Sugar 50kg','Grains','bag',6600,7000,6850],['Tea 950g','Beverages','pack',1650,1850,1780],['Cola 1.5L','Beverages','btl',150,175,165],['Mineral Water 1.5L','Beverages','btl',70,90,80],['Juice 1L','Beverages','pack',210,250,235],['Milk Pack 1L','Dairy','pack',260,290,280],['Biscuits Family Pack','Snacks','pack',95,120,110],['Noodles Pack','Snacks','pack',45,60,54],['Salt 800g','Spices','pack',55,70,64],['Spices Mix 200g','Spices','pack',150,190,175],['Ketchup 800g','Sauces','btl',310,370,345],['Jam 400g','Sauces','jar',290,340,320],['Detergent 1kg','Home Care','pack',430,510,480],['Dishwash Liquid','Home Care','btl',260,320,295],['Soap Bar','Personal Care','pcs',65,85,76],['Shampoo 400ml','Personal Care','btl',520,640,590],['Toothpaste 150g','Personal Care','pcs',210,260,240]];
+  P.forEach((x,i)=>createProduct({name:x[0],sku:'SKU'+String(i+1).padStart(3,'0'),barcode:'89'+String(10000000+i*7919).slice(0,8),category:x[1],unit:x[2],cost:x[3],price:x[4],wholesale:x[5],min:20,stock:0}));
+  const SN=['Royal Foods Supply','Punjab Wholesale Traders','City Beverages Agency','Green Valley Distributors','Metro Home Care Co.'];
+  SN.forEach((n,i)=>createParty('s',{name:n,phone:'0300-55500'+(10+i),city:'Lahore',opening:i===1?45000:0}));
+  const CN=['Al-Noor General Store','Bismillah Mart','City Super Store','Madina Kiryana','Fresh Corner','Rehman Traders','Sunrise Mart','Green Line Store','Shan Departmental','Hilal Provisions'];
+  CN.forEach((n,i)=>createParty('c',{name:n,phone:'0321-77700'+(10+i),city:i%2?'Lahore':'Sheikhupura',area:'Area '+(i%4+1),creditLimit:i<7?150000:0,opening:i===2?18000:0}));
+  const prodsPer=Math.ceil(S.products.length/S.suppliers.length);
+  S.suppliers.forEach((sp,si)=>{
+    const items=S.products.slice(si*prodsPer,(si+1)*prodsPer).map(p=>({pid:p.id,qty:150+Math.floor(rnd()*250),cost:p.cost}));
+    if(!items.length)return;
+    const tot=items.reduce((a,i)=>a+i.qty*i.cost,0);
+    createPurchase({date:dayOff(-40),supplierId:sp.id,items,paid:si%2?tot*0.6:tot,method:'bank'});
+  });
+  for(let d=-30;d<=0;d++){
+    const n=2+Math.floor(rnd()*3);
+    for(let k=0;k<n;k++){
+      try{
+        const walk=rnd()<0.4,c=walk?null:pick(S.customers);
+        const ids=new Set();const cnt=1+Math.floor(rnd()*4);while(ids.size<cnt)ids.add(pick(S.products).id);
+        const ws=!!c&&rnd()<0.6;
+        const items=[...ids].map(id=>{const p=prod(id);return{pid:id,qty:1+Math.floor(rnd()*(ws?12:5)),price:ws?p.wholesale:p.price}});
+        const tot=items.reduce((a,i)=>a+i.qty*i.price,0);
+        const r=rnd();let paid=tot;if(c){paid=r<0.55?tot:r<0.8?Math.round(tot*0.5):0}
+        createSale({date:dayOff(d),customerId:c?c.id:null,items,paid,method:rnd()<0.7?'cash':'bank'});
+      }catch(e){}
+    }
+    if(d%6===0){
+      S.customers.forEach(c=>{const b=custBalance(c);if(b>0&&rnd()<0.35){try{receive(c.id,Math.min(b,Math.round(b*(0.4+rnd()*0.6))),'cash',dayOff(d),'Collection')}catch(e){}}});
+    }
+  }
+  S.suppliers.forEach(sp=>{const b=supBalance(sp);if(b>0){try{paySupplier(sp.id,Math.round(b*0.4),'bank',dayOff(-10),'Part payment')}catch(e){}}});
+  const EX=[['6000',60000,'Shop rent'],['6010',14500,'Electricity bill'],['6020',9000,'Van fuel'],['6030',85000,'Staff salaries'],['6040',6500,'Freight'],['6050',3200,'Van repair'],['6060',4000,'Flyers'],['6070',2500,'Stationery']];
+  EX.forEach((x,i)=>addExpense({date:dayOff(-28+i*3),acc:x[0],amount:x[1],method:i%3?'cash':'bank',note:x[2]}));
+}
+
+function decodeOrderCode(code){
+  let b=code.slice(6).replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';
+  const bin=atob(b);const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+function importOrders(text){
+  const codes=String(text).match(/BSTO1:[A-Za-z0-9_-]+/g)||[];let added=0,dup=0,bad=0;
+  codes.forEach(c=>{
+    try{
+      const o=decodeOrderCode(c);
+      const items=(Array.isArray(o.it)?o.it:[]).map(x=>({pid:+x[0],qty:+x[1],name:String(x[3]||'')})).filter(x=>x.pid&&x.qty>0&&isFinite(x.qty));
+      if(!o||!o.no||!items.length){bad++;return}
+      if(S.orders.some(x=>x.no===o.no)){dup++;return}
+      let cid=o.cid&&cust(+o.cid)?+o.cid:null;
+      if(!cid&&o.cn){const m=S.customers.find(x=>x.name===o.cn);if(m)cid=m.id}
+      S.orders.push({id:uid(),no:String(o.no),date:o.d||today(),taker:String(o.tk||''),customerId:cid,customerName:String(o.cn||''),level:o.lv==='wholesale'?'wholesale':'retail',items,note:String(o.nt||''),status:'Pending',saleNo:''});
+      added++;
+    }catch(e){bad++}
+  });
+  return{added,dup,bad,found:codes.length};
+}
+function orderPrice(o,pid){const p=prod(pid);return p?(o.level==='wholesale'&&p.wholesale?p.wholesale:p.price):0}
+function orderTotal(o){return r2(o.items.reduce((a,i)=>a+i.qty*orderPrice(o,i.pid),0))}
+function approveOrder(id){
+  const o=S.orders.find(x=>x.id===id);
+  if(!o||o.status!=='Pending')throw new Error('This order is already processed');
+  if(!o.customerId)throw new Error('Choose the customer for this order first');
+  const items=o.items.map(i=>{const p=prod(i.pid);if(!p)throw new Error('Product no longer exists: '+i.name);return{pid:p.id,qty:i.qty,price:orderPrice(o,p.id)}});
+  const s=createSale({customerId:o.customerId,items,paid:0,method:'cash',taxRate:S.settings.taxRate,date:today(),note:'Order '+o.no});
+  o.status='Invoiced';o.saleNo=s.no;return s;
+}
+function rejectOrder(id){const o=S.orders.find(x=>x.id===id);if(!o||o.status!=='Pending')throw new Error('This order is already processed');o.status='Rejected'}
+function buildCatalog(opts){
+  const f=String(opts.filter||'').trim().toLowerCase();
+  return{v:1,business:{name:S.settings.name,phone:S.settings.phone,currency:S.settings.currency},exportedAt:new Date().toISOString(),
+    products:S.products.filter(p=>p.active).map(p=>({id:p.id,name:p.name,sku:p.sku,category:p.category,unit:p.unit,price:p.price,wholesale:p.wholesale,stock:opts.stock?p.stock:null})),
+    customers:S.customers.filter(c=>!f||(c.city+' '+c.area+' '+c.name).toLowerCase().includes(f)).map(c=>({id:c.id,name:c.name,phone:c.phone,city:c.city,area:c.area})),
+    status:Object.fromEntries(S.orders.map(o=>[o.no,o.status]))};
+}
+/*CORE-END*/
+
+/* ============ UI ============ */
+const PAGES={},TBL={},ACT={},CHG={},UI={},POS={cart:[],cat:'',q:'',cust:'',disc:0,tax:null,method:'cash',paid:'',level:'retail'};
+const NAV=[['dashboard','Dashboard','▦'],['pos','POS','🧾'],['products','Products','📦'],['inventory','Inventory','🏬'],['sales','Sales','💰'],['orders','Orders','📝'],['purchases','Purchases','🛒'],['customers','Customers','👥'],['suppliers','Suppliers','🚚'],['payments','Payments','💳'],['expenses','Expenses','📤'],['accounting','Accounting','📚'],['reports','Reports','📊'],['settings','Settings','⚙️']];
+const V=()=>$('#view');
+function toast(m,t){const d=document.createElement('div');d.className='toast '+(t||'');d.textContent=m;$('#toasts').appendChild(d);setTimeout(()=>d.remove(),3800)}
+function tx(fn,ok){const snap=JSON.stringify(S);try{const r=fn();save();if(ok)toast(ok);return r===undefined?true:r}catch(e){S=JSON.parse(snap);toast(e.message||String(e),'err');return false}}
+let modalOK=null;
+function modal(title,body,ok,o){o=o||{};$('#mt').textContent=title;$('#mb').innerHTML=body;const d=$('#modal');d.classList.toggle('wide',!!o.wide);$('#mok').textContent=o.okText||'Save';$('#mok').style.display=ok?'':'none';$('#mc').textContent=ok?'Cancel':'Close';modalOK=ok;if(!d.open)d.showModal()}
+const closeModal=()=>{const d=$('#modal');if(d.open)d.close()};
+$('#mok').onclick=()=>{if(modalOK){if(modalOK()===false)return}closeModal()};
+$('#mc').onclick=closeModal;$('#mx').onclick=closeModal;
+const val=id=>{const e=$('#'+id);return e?e.value:''};
+const numv=id=>+val(id)||0;
+const opt=(arr,sel)=>arr.map(a=>`<option value="${esc(a[0])}"${String(a[0])===String(sel)?' selected':''}>${esc(a[1])}</option>`).join('');
+const fld=(l,id,v,type,ex)=>`<label class="f"><span>${l}</span><input class="in" id="${id}" type="${type||'text'}" value="${esc(v==null?'':v)}" ${ex||''}></label>`;
+const sel=(l,id,options,v,ex)=>`<label class="f"><span>${l}</span><select class="in" id="${id}" ${ex||''}>${opt(options,v)}</select></label>`;
+const bt=(label,act,data,cls)=>`<button class="b b-s ${cls||''}" data-act="${act}" ${Object.entries(data||{}).map(([k,v])=>`data-${k}="${esc(v)}"`).join(' ')}>${label}</button>`;
+function tbl(cols,rows,empty,foot){
+  if(!rows.length)return `<div class="empty">${empty||'Nothing here yet.'}</div>`;
+  return `<div class="tw"><table class="tbl"><thead><tr>${cols.map(c=>`<th class="${c[1]||''}">${c[0]}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map((v,i)=>`<td class="${cols[i][1]||''}">${v}</td>`).join('')}</tr>`).join('')}</tbody>${foot?`<tfoot><tr>${foot.map((v,i)=>`<td class="${cols[i][1]||''}">${v}</td>`).join('')}</tr></tfoot>`:''}</table></div>`;
+}
+function csv(rows){return rows.map(r=>r.map(v=>{v=v==null?'':String(v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(',')).join('\r\n')}
+function download(name,text,mime){const b=new Blob([text],{type:mime||'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+function printHTML(h){$('#printArea').innerHTML=h;setTimeout(()=>window.print(),60)}
+function parseCSV(t){const rows=[];let row=[],cur='',q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){cur+='"';i++}else q=false}else cur+=c}else if(c==='"')q=true;else if(c===','){row.push(cur);cur=''}else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(cur);cur='';if(row.some(x=>x!==''))rows.push(row);row=[]}else cur+=c}row.push(cur);if(row.some(x=>x!==''))rows.push(row);return rows}
+const pickFile=(accept,cb)=>{const i=document.createElement('input');i.type='file';i.accept=accept;i.onchange=()=>{const f=i.files[0];if(!f)return;const r=new FileReader();r.onload=()=>cb(String(r.result),f);r.readAsText(f)};i.click()};
+
+/* range helpers */
+function rangeOf(k){const n=new Date(),y=n.getFullYear(),m=n.getMonth(),d=n.getDate();
+  if(k==='today')return[ymd(n),ymd(n)];
+  if(k==='yesterday'){const t=new Date(y,m,d-1);return[ymd(t),ymd(t)]}
+  if(k==='week'){const w=(n.getDay()+6)%7;return[ymd(new Date(y,m,d-w)),ymd(n)]}
+  if(k==='month')return[ymd(new Date(y,m,1)),ymd(n)];
+  if(k==='lastmonth')return[ymd(new Date(y,m-1,1)),ymd(new Date(y,m,0))];
+  if(k==='year')return[ymd(new Date(y,0,1)),ymd(n)];
+  return['','9999-12-31']}
+const inR=(d,f,t)=>(!f||d>=f)&&(!t||d<=t);
+
+/* ---------- Dashboard ---------- */
+PAGES.dashboard=()=>{
+  UI.dash=UI.dash||{r:'month'};const r=UI.dash.r;
+  const empty=!S.products.length&&!S.sales.length;
+  V().innerHTML=(empty?`<div class="banner"><b>Welcome to BE SHAD TRADER.</b><span>Add your products and customers, or load sample data to explore every screen.</span><button class="b b-a sp" data-act="demo">Load demo data</button></div>`:'')+
+  `<div class="bar"><div class="tabs">${[['today','Today'],['yesterday','Yesterday'],['week','This Week'],['month','This Month'],['lastmonth','Last Month'],['year','This Year'],['all','All Time']].map(([k,t])=>`<button data-act="dr" data-k="${k}" aria-pressed="${r===k}">${t}</button>`).join('')}</div></div><div id="dbody"></div>`;
+  const [f,t]=rangeOf(r);
+  const sl=S.sales.filter(s=>inR(s.date,f,t));
+  const sales=r2(sl.reduce((a,s)=>a+s.total,0));
+  const purch=r2(S.purchases.filter(p=>inR(p.date,f,t)).reduce((a,p)=>a+p.total,0));
+  const coll=r2(sl.reduce((a,s)=>a+s.paid0,0)+S.payments.filter(p=>p.type==='in'&&inR(p.date,f,t)).reduce((a,p)=>a+p.amount,0));
+  const exp=r2(S.expenses.filter(e=>!e.voided&&inR(e.date,f,t)).reduce((a,e)=>a+e.amount,0));
+  let inc=0,ex=0;S.accounts.forEach(a=>{if(a.type==='income')inc+=natBal(a,f,t);if(a.type==='expense')ex+=natBal(a,f,t)});
+  const profit=r2(inc-ex);
+  const recv=r2(S.customers.reduce((a,c)=>a+custBalance(c),0)),payb=r2(S.suppliers.reduce((a,c)=>a+supBalance(c),0));
+  const low=S.products.filter(p=>p.active&&p.min>0&&p.stock<=p.min);
+  const card=(l,v,c)=>`<div class="card"><span>${l}</span><strong class="${c||''}">${v}</strong></div>`;
+  /* chart */
+  let keys=[],lab=k=>k.slice(8),monthly=(r==='year'||r==='all');
+  if(monthly){let s0=r==='year'?f.slice(0,7):((S.sales[0]&&S.sales[0].date)||today()).slice(0,7);let c=pd(s0+'-01');const end=today().slice(0,7);while(ymd(c).slice(0,7)<=end){keys.push(ymd(c).slice(0,7));c=new Date(c.getFullYear(),c.getMonth()+1,1)}lab=k=>['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+k.slice(5)-1]}
+  else{let st=f;if(daysBetween(f,t)<6)st=ymd(addDays(pd(t),-6));for(let d=pd(st);ymd(d)<=t;d=addDays(d,1))keys.push(ymd(d))}
+  const bucket={};S.sales.forEach(s=>{const k=monthly?s.date.slice(0,7):s.date;bucket[k]=(bucket[k]||0)+s.total});
+  const mx=Math.max(1,...keys.map(k=>bucket[k]||0));
+  const chart=`<div class="bars" role="img" aria-label="Sales trend">${keys.map(k=>`<div title="${k}: ${money(bucket[k]||0)}"><i style="height:${Math.round((bucket[k]||0)/mx*100)}%"></i>${keys.length<=16?lab(k):''}</div>`).join('')}</div>`;
+  const tp={};sl.forEach(s=>s.items.forEach(i=>{const x=tp[i.name]=tp[i.name]||{q:0,a:0};x.q+=i.qty-i.returned;x.a+=(i.qty-i.returned)*i.price}));
+  const topP=Object.entries(tp).sort((a,b)=>b[1].a-a[1].a).slice(0,6);
+  const tc={};sl.forEach(s=>{const n=s.customerId?cust(s.customerId).name:'Walk-in';tc[n]=(tc[n]||0)+s.total});
+  const topC=Object.entries(tc).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const owe=S.customers.map(c=>[c,custBalance(c)]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const li=(rows,fn)=>rows.length?`<ul class="list">${rows.map(fn).join('')}</ul>`:'<div class="empty" style="padding:18px">No data for this period.</div>';
+  $('#dbody').innerHTML=`<div class="cards">${card('Sales',money(sales))}${card('Purchases',money(purch))}${card('Collection',money(coll))}${card('Expenses',money(exp))}${card('Net profit',money(profit),profit<0?'dn':'up')}</div>
+  <div class="cards">${card('Receivables',money(recv))}${card('Payables',money(payb))}${card('Stock value',money(stockValue()))}${card('Low stock items',low.length,low.length?'dn':'')}${card('Customers',S.customers.length)}${card('Suppliers',S.suppliers.length)}</div>
+  <div class="two"><div class="panel"><h3>Sales trend</h3>${chart}</div><div class="panel"><h3>Top products</h3>${li(topP,x=>`<li><span>${esc(x[0])}</span><b>${money(x[1].a)}</b></li>`)}</div></div>
+  <div class="two" style="margin-top:16px"><div class="panel"><h3>Who owes us the most</h3>${li(owe,x=>`<li><span>${esc(x[0].name)}</span><b>${money(x[1])}</b></li>`)}</div><div class="panel"><h3>Top customers</h3>${li(topC,x=>`<li><span>${esc(x[0])}</span><b>${money(x[1])}</b></li>`)}</div></div>
+  <div class="panel" style="margin-top:16px"><h3>Low stock</h3>${li(low.slice(0,8),p=>`<li><span>${esc(p.name)}</span><b class="dn">${qty(p.stock)} left (min ${qty(p.min)})</b></li>`)}</div>`;
+};
+ACT.dr=(e,d)=>{UI.dash.r=d.k;PAGES.dashboard()};
+ACT.demo=()=>{if(S.products.length||S.sales.length){if(!confirm('This replaces ALL current data with demo data. Continue?'))return}tx(()=>{loadDemo()},'Demo data loaded');go('dashboard');PAGES.dashboard()};
+
+/* ---------- POS ---------- */
+function posTotals(){const sub=r2(POS.cart.reduce((a,l)=>a+l.qty*l.price,0));const disc=r2(Math.min(Math.max(+POS.disc||0,0),sub));const rev=r2(sub-disc);const tax=r2(rev*(+POS.tax||0)/100);return{sub,disc,rev,tax,total:r2(rev+tax)}}
+PAGES.pos=()=>{
+  if(POS.tax===null)POS.tax=S.settings.taxRate;
+  V().innerHTML=`<div class="pos"><div><div class="bar"><input class="in grow" id="pq" placeholder="Search name, SKU or scan barcode (F2)" autocomplete="off" value="${esc(POS.q)}"><select class="in" id="plevel" data-chg="plevel"><option value="retail">Retail price</option><option value="wholesale">Wholesale price</option></select></div><div class="chips" id="pcats"></div><div class="pgrid" id="pgrid"></div></div><div class="cart" id="pcart"></div></div>`;
+  $('#plevel').value=POS.level;
+  $('#pq').addEventListener('input',e=>{POS.q=e.target.value;posGrid()});
+  $('#pq').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const q=POS.q.trim().toLowerCase();if(!q)return;const list=S.products.filter(p=>p.active);const ex=list.find(p=>p.barcode&&p.barcode.toLowerCase()===q)||list.find(p=>p.sku.toLowerCase()===q);const hit=ex||(posFiltered().length===1?posFiltered()[0]:null);if(hit){posAdd(hit.id);POS.q='';e.target.value='';posGrid()}else toast('No single matching product','err')}});
+  posGrid();posCart();
+};
+function posFiltered(){const q=POS.q.trim().toLowerCase();return S.products.filter(p=>p.active&&(!POS.cat||p.category===POS.cat)&&(!q||(p.name+' '+p.sku+' '+p.barcode).toLowerCase().includes(q)))}
+function posGrid(){
+  const cats=[...new Set(S.products.map(p=>p.category))].sort();
+  $('#pcats').innerHTML=`<button data-act="pcat" data-c="" aria-pressed="${!POS.cat}">All</button>`+cats.map(c=>`<button data-act="pcat" data-c="${esc(c)}" aria-pressed="${POS.cat===c}">${esc(c)}</button>`).join('');
+  const l=posFiltered().slice(0,120);
+  $('#pgrid').innerHTML=l.length?l.map(p=>`<button data-act="padd" data-id="${p.id}" ${(!S.settings.allowNegative&&p.stock<=0)?'disabled':''}><b>${esc(p.name)}</b><small>${qty(p.stock)} ${esc(p.unit)} in stock</small><em>${money(POS.level==='wholesale'?p.wholesale:p.price)}</em></button>`).join(''):`<div class="empty" style="grid-column:1/-1">${S.products.length?'No products match.':'No products yet. Add products first.'}</div>`;
+}
+ACT.pcat=(e,d)=>{POS.cat=d.c;posGrid()};
+function posAdd(id){const p=prod(id);if(!p)return;const l=POS.cart.find(x=>x.pid===id);const price=POS.level==='wholesale'?p.wholesale:p.price;
+  const nq=(l?l.qty:0)+1;if(!S.settings.allowNegative&&nq>p.stock){toast('Only '+qty(p.stock)+' in stock','err');return}
+  if(l)l.qty=nq;else POS.cart.push({pid:id,qty:1,price});posCart()}
+ACT.padd=(e,d)=>posAdd(+d.id);
+ACT.prm=(e,d)=>{POS.cart.splice(+d.i,1);posCart()};
+ACT.pclear=()=>{POS.cart=[];POS.disc=0;POS.paid='';POS.cust='';POS.method='cash';posCart()};
+CHG.plevel=e=>{POS.level=e.value;POS.cart.forEach(l=>{const p=prod(l.pid);l.price=POS.level==='wholesale'?p.wholesale:p.price});posGrid();posCart()};
+CHG.pqty=e=>{const l=POS.cart[+e.dataset.i];const p=prod(l.pid);let q=+e.value;if(!(q>0)){POS.cart.splice(+e.dataset.i,1)}else{if(!S.settings.allowNegative&&q>p.stock){toast('Only '+qty(p.stock)+' in stock','err');q=p.stock}l.qty=q}posCart()};
+CHG.pprice=e=>{POS.cart[+e.dataset.i].price=Math.max(0,+e.value||0);posCart()};
+CHG.pf=e=>{POS[e.dataset.f]=e.value;posCart()};
+function posCart(){
+  const box=$('#pcart');if(!box)return;const t=posTotals();
+  const lines=POS.cart.map((l,i)=>{const p=prod(l.pid);return `<div class="cl"><span>${esc(p.name)}</span><input class="in" type="number" min="0" step="any" value="${l.qty}" data-chg="pqty" data-i="${i}" aria-label="Quantity"><input class="in" type="number" min="0" step="any" value="${l.price}" data-chg="pprice" data-i="${i}" aria-label="Price"><button class="b b-s b-d" data-act="prm" data-i="${i}" aria-label="Remove">✕</button></div>`}).join('');
+  const isCredit=POS.method==='credit';
+  const paid=isCredit?0:(POS.paid===''?t.total:Math.min(Math.max(+POS.paid||0,0),t.total));
+  const change=(!isCredit&&POS.paid!==''&&+POS.paid>t.total)?r2(+POS.paid-t.total):0;
+  const due=r2(t.total-paid);
+  box.innerHTML=`<label class="f"><span>Customer</span><select class="in" data-chg="pf" data-f="cust"><option value="">Walk-in customer</option>${opt(S.customers.map(c=>[c.id,c.name]),POS.cust)}</select></label>
+  <div class="cl-w">${lines||'<div class="empty" style="padding:22px">Cart is empty. Tap a product or scan a barcode.</div>'}</div>
+  <div class="fg" style="grid-template-columns:1fr 1fr"><label class="f"><span>Discount</span><input class="in" type="number" min="0" step="any" value="${POS.disc||''}" data-chg="pf" data-f="disc" placeholder="0"></label><label class="f"><span>Tax %</span><input class="in" type="number" min="0" step="any" value="${POS.tax}" data-chg="pf" data-f="tax"></label></div>
+  <div class="tot"><span>Subtotal</span><span>${money(t.sub)}</span></div>${t.disc?`<div class="tot"><span>Discount</span><span>− ${money(t.disc)}</span></div>`:''}${t.tax?`<div class="tot"><span>Tax</span><span>${money(t.tax)}</span></div>`:''}
+  <div class="tot big"><span>Total</span><span>${money(t.total)}</span></div>
+  <div class="fg" style="grid-template-columns:1fr 1fr"><label class="f"><span>Payment</span><select class="in" data-chg="pf" data-f="method"><option value="cash"${POS.method==='cash'?' selected':''}>Cash</option><option value="bank"${POS.method==='bank'?' selected':''}>Bank</option><option value="card"${POS.method==='card'?' selected':''}>Card</option><option value="online"${POS.method==='online'?' selected':''}>Online</option><option value="credit"${POS.method==='credit'?' selected':''}>Credit (pay later)</option></select></label><label class="f"><span>Amount received</span><input class="in" type="number" min="0" step="any" value="${POS.paid}" data-chg="pf" data-f="paid" placeholder="${isCredit?'0':t.total}" ${isCredit?'disabled':''}></label></div>
+  ${change?`<div class="tot"><span>Change to return</span><b>${money(change)}</b></div>`:''}${due>0?`<div class="tot"><span>Left on credit</span><b class="dn">${money(due)}</b></div>`:''}
+  <div style="display:flex;gap:8px"><button class="b" data-act="pclear">Clear (F4)</button><button class="b b-a sp" style="flex:1" data-act="pcheck">Complete sale (F9)</button></div>`;
+}
+ACT.pcheck=()=>{
+  const t=posTotals();if(!POS.cart.length){toast('Cart is empty','err');return}
+  const isCredit=POS.method==='credit';
+  const paid=isCredit?0:(POS.paid===''?t.total:Math.min(Math.max(+POS.paid||0,0),t.total));
+  const s=tx(()=>createSale({customerId:POS.cust?+POS.cust:null,items:POS.cart.map(l=>({pid:l.pid,qty:l.qty,price:l.price})),discount:POS.disc,taxRate:POS.tax,paid,method:isCredit?'cash':POS.method}));
+  if(!s)return;
+  POS.cart=[];POS.disc=0;POS.paid='';POS.method='cash';
+  posGrid();posCart();
+  modal('Sale complete — '+s.no,invoiceHTML(s),null,{wide:true});
+  $('#mb').insertAdjacentHTML('beforeend',`<div style="margin-top:12px;display:flex;gap:8px">${bt('Print receipt','print',{id:s.id},'b-p')}</div>`);
+};
+document.addEventListener('keydown',e=>{
+  if(location.hash!=='#/pos'||$('#modal').open)return;
+  if(e.key==='F2'){e.preventDefault();$('#pq')&&$('#pq').focus()}
+  if(e.key==='F4'){e.preventDefault();ACT.pclear()}
+  if(e.key==='F9'){e.preventDefault();ACT.pcheck()}
+});
+
+/* ---------- Invoice ---------- */
+function invoiceHTML(s){
+  const c=cust(s.customerId),st=S.settings,due=dueOf(s);
+  return `<div class="inv"><div class="inv-h"><div><h2>${esc(st.name)}</h2><div>${esc(st.address)}</div><div>${esc(st.phone)} ${esc(st.email)}</div></div><div class="r"><h3>INVOICE</h3><div><b>${esc(s.no)}</b></div><div>${s.date}</div></div></div>
+  <div>Customer: <b>${c?esc(c.name):'Walk-in customer'}</b>${c&&c.phone?' · '+esc(c.phone):''}</div>
+  <table><thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Price</th><th class="r">Amount</th></tr></thead><tbody>${s.items.map(i=>`<tr><td>${esc(i.name)}${i.returned?` <small>(returned ${qty(i.returned)})</small>`:''}</td><td class="r">${qty(i.qty)} ${esc(i.unit||'')}</td><td class="r">${money(i.price)}</td><td class="r">${money(i.qty*i.price)}</td></tr>`).join('')}</tbody></table>
+  <div class="sum"><div><span>Subtotal</span><span>${money(s.subtotal)}</span></div>${s.discount?`<div><span>Discount</span><span>− ${money(s.discount)}</span></div>`:''}${s.tax?`<div><span>Tax (${s.taxRate}%)</span><span>${money(s.tax)}</span></div>`:''}<div><b>Total</b><b>${money(s.total)}</b></div><div><span>Paid</span><span>${money(s.paid+(s.credited||0))}</span></div><div><b>Balance due</b><b>${money(due)}</b></div></div>
+  <div class="ft">${esc(st.footer)}</div></div>`;
+}
+ACT.print=(e,d)=>{const s=S.sales.find(x=>x.id===+d.id);if(s)printHTML(invoiceHTML(s))};
+
+/* ---------- Products ---------- */
+PAGES.products=()=>{
+  UI.products=UI.products||{q:'',cat:'',show:'active'};const u=UI.products;
+  const cats=[...new Set(S.products.map(p=>p.category))].sort();
+  V().innerHTML=`<div class="bar"><input class="in grow" name="q" data-inp="products" placeholder="Search products" value="${esc(u.q)}"><select class="in" name="cat" data-inp="products"><option value="">All categories</option>${opt(cats.map(c=>[c,c]),u.cat)}</select><select class="in" name="show" data-inp="products"><option value="active">Active</option><option value="all"${u.show==='all'?' selected':''}>All</option><option value="low"${u.show==='low'?' selected':''}>Low stock</option></select>
+  <button class="b b-p sp" data-act="padd2">+ Add product</button><button class="b" data-act="pimport">Import CSV</button><button class="b" data-act="pexport">Export CSV</button></div><div id="tbl"></div>`;
+  TBL.products();
+};
+TBL.products=()=>{
+  const u=UI.products,q=u.q.toLowerCase();
+  const l=S.products.filter(p=>(u.show==='all'||p.active)&&(!u.cat||p.category===u.cat)&&(!q||(p.name+' '+p.sku+' '+p.barcode).toLowerCase().includes(q))&&(u.show!=='low'||(p.min>0&&p.stock<=p.min)));
+  $('#tbl').innerHTML=tbl([['Product'],['SKU'],['Category'],['Unit'],['Cost','r'],['Retail','r'],['Wholesale','r'],['Stock','r'],['']],
+    l.slice(0,300).map(p=>[`<b>${esc(p.name)}</b>${p.active?'':' <span class="bdg">inactive</span>'}<br><small style="color:var(--mut)">${esc(p.barcode)}</small>`,esc(p.sku),esc(p.category),esc(p.unit),money(p.cost),money(p.price),money(p.wholesale),`<span class="${p.min>0&&p.stock<=p.min?'dn':''}">${qty(p.stock)}</span>`,bt('Edit','pedit',{id:p.id})+' '+bt('Adjust','padj',{id:p.id})]),'No products found.');
+};
+function productForm(p){
+  const cats=[...new Set(S.products.map(x=>x.category))];
+  return `<div class="fg">${fld('Product name *','f_name',p&&p.name)}${fld('SKU (auto if blank)','f_sku',p&&p.sku)}${fld('Barcode','f_bar',p&&p.barcode)}<label class="f"><span>Category</span><input class="in" id="f_cat" list="catlist" value="${esc(p?p.category:'')}"><datalist id="catlist">${cats.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></label>${fld('Brand','f_brand',p&&p.brand)}${fld('Unit','f_unit',p?p.unit:'pcs')}${fld('Purchase cost','f_cost',p?r2(p.cost):'','number','min="0" step="any"')}${fld('Retail price','f_price',p&&p.price,'number','min="0" step="any"')}${fld('Wholesale price','f_wh',p&&p.wholesale,'number','min="0" step="any"')}${fld('Minimum stock','f_min',p&&p.min,'number','min="0" step="any"')}${p?'':fld('Opening stock','f_stock','','number','min="0" step="any"')}${p?sel('Status','f_act',[['1','Active'],['0','Inactive']],p.active?'1':'0'):''}</div>`;
+}
+ACT.padd2=()=>modal('Add product',productForm(),()=>{
+  const ok=tx(()=>createProduct({name:val('f_name'),sku:val('f_sku'),barcode:val('f_bar'),category:val('f_cat'),brand:val('f_brand'),unit:val('f_unit'),cost:numv('f_cost'),price:numv('f_price'),wholesale:numv('f_wh'),min:numv('f_min'),stock:numv('f_stock')}),'Product added');
+  if(!ok)return false;PAGES.products();
+});
+ACT.pedit=(e,d)=>{const p=prod(+d.id);modal('Edit product',productForm(p),()=>{
+  const ok=tx(()=>{const name=val('f_name').trim();if(!name)throw new Error('Product name is required');const sku=val('f_sku').trim()||p.sku;if(S.products.some(x=>x.id!==p.id&&x.sku.toLowerCase()===sku.toLowerCase()))throw new Error('SKU already exists');const q=prod(p.id);Object.assign(q,{name,sku,barcode:val('f_bar').trim(),category:val('f_cat').trim()||'General',brand:val('f_brand'),unit:val('f_unit')||'pcs',cost:numv('f_cost'),price:numv('f_price'),wholesale:numv('f_wh')||numv('f_price'),min:numv('f_min'),active:val('f_act')==='1'})},'Product updated');
+  if(!ok)return false;PAGES.products();
+})};
+ACT.padj=(e,d)=>{const p=prod(+d.id);modal('Adjust stock — '+p.name,`<p>Current stock: <b>${qty(p.stock)} ${esc(p.unit)}</b></p><div class="fg">${sel('Type','a_type',[['Adjustment','Adjustment'],['Damage','Damage / loss'],['Stock Count','Stock count correction']],'Adjustment')}${fld('Change (+ adds, − removes)','a_q','','number','step="any"')}${fld('Reason','a_note','')}</div>`,()=>{
+  const ok=tx(()=>adjustStock(p.id,numv('a_q'),val('a_type'),val('a_note')),'Stock adjusted');if(!ok)return false;refresh();
+})};
+ACT.pexport=()=>download('products.csv',csv([['name','sku','barcode','category','brand','unit','cost','price','wholesale','min','stock'],...S.products.map(p=>[p.name,p.sku,p.barcode,p.category,p.brand,p.unit,r2(p.cost),p.price,p.wholesale,p.min,p.stock])]));
+ACT.pimport=()=>modal('Import products from CSV',`<p>Columns: <b>name, sku, barcode, category, brand, unit, cost, price, wholesale, min, stock</b>. Only <b>name</b> is required. Rows with an existing SKU are skipped. In Excel, use Save As → CSV.</p><div style="display:flex;gap:8px;flex-wrap:wrap">${bt('Download template','ptemplate')}${bt('Choose CSV file','pfile','', 'b-p')}</div>`,null);
+ACT.ptemplate=()=>download('products-template.csv',csv([['name','sku','barcode','category','brand','unit','cost','price','wholesale','min','stock'],['Sample Product','SP001','1234567890','General','','pcs','100','120','110','10','50']]));
+ACT.pfile=()=>pickFile('.csv,text/csv',t=>{
+  const rows=parseCSV(t);if(rows.length<2){toast('The file has no data rows','err');return}
+  const h=rows[0].map(x=>x.trim().toLowerCase());const ix=k=>h.indexOf(k);
+  if(ix('name')<0){toast('Missing "name" column','err');return}
+  let added=0,skipped=0;const errs=[];
+  const ok=tx(()=>{rows.slice(1).forEach((r,n)=>{const g=k=>ix(k)<0?'':(r[ix(k)]||'').trim();
+    try{createProduct({name:g('name'),sku:g('sku'),barcode:g('barcode'),category:g('category'),brand:g('brand'),unit:g('unit')||'pcs',cost:+g('cost')||0,price:+g('price')||0,wholesale:+g('wholesale')||0,min:+g('min')||0,stock:+g('stock')||0});added++}catch(e){skipped++;errs.push('Row '+(n+2)+': '+e.message)}})});
+  if(ok){closeModal();toast(added+' imported'+(skipped?', '+skipped+' skipped':''),skipped?'err':'');if(errs.length)console.warn(errs.join('\n'));PAGES.products()}
+});
+
+/* ---------- Inventory ---------- */
+PAGES.inventory=()=>{
+  UI.inv=UI.inv||{tab:'stock',q:'',pid:'',type:''};const u=UI.inv;
+  const low=S.products.filter(p=>p.active&&p.min>0&&p.stock<=p.min).length;
+  V().innerHTML=`<div class="cards"><div class="card"><span>Products</span><strong>${S.products.length}</strong></div><div class="card"><span>Stock value (at cost)</span><strong>${money(stockValue())}</strong></div><div class="card"><span>Low stock</span><strong class="${low?'dn':''}">${low}</strong></div></div>
+  <div class="bar"><div class="tabs"><button data-act="itab" data-t="stock" aria-pressed="${u.tab==='stock'}">Stock overview</button><button data-act="itab" data-t="ledger" aria-pressed="${u.tab==='ledger'}">Stock ledger</button></div>
+  ${u.tab==='stock'?`<input class="in grow" name="q" data-inp="inv" placeholder="Search" value="${esc(u.q)}">`:`<select class="in grow" name="pid" data-inp="inv"><option value="">All products</option>${opt(S.products.map(p=>[p.id,p.name]),u.pid)}</select><select class="in" name="type" data-inp="inv"><option value="">All movements</option>${opt(['Opening Stock','Purchase','Sale','Sale Return','Purchase Return','Adjustment','Damage','Stock Count'].map(x=>[x,x]),u.type)}</select>`}</div><div id="tbl"></div>`;
+  TBL.inv();
+};
+ACT.itab=(e,d)=>{UI.inv.tab=d.t;PAGES.inventory()};
+TBL.inv=()=>{
+  const u=UI.inv;
+  if(u.tab==='stock'){
+    const q=u.q.toLowerCase();const l=S.products.filter(p=>!q||(p.name+p.sku).toLowerCase().includes(q));
+    $('#tbl').innerHTML=tbl([['Product'],['SKU'],['Stock','r'],['Min','r'],['Cost','r'],['Value','r'],['Status'],['']],l.slice(0,300).map(p=>[esc(p.name),esc(p.sku),qty(p.stock)+' '+esc(p.unit),qty(p.min),money(p.cost),money(p.stock*p.cost),p.stock<=0?'<span class="bdg bad">Out</span>':(p.min>0&&p.stock<=p.min)?'<span class="bdg wn">Low</span>':'<span class="bdg ok">OK</span>',bt('Adjust','padj',{id:p.id})]),'No products yet.',['Total','','','','',money(stockValue()),'','']);
+  }else{
+    let l=S.movements.filter(m=>(!u.pid||m.pid===+u.pid)&&(!u.type||m.type===u.type));
+    let bal=null;if(u.pid){let b=0;const all=S.movements.filter(m=>m.pid===+u.pid);const map={};all.forEach(m=>{b+=m.qty;map[m.id]=b});bal=map}
+    l=[...l].reverse().slice(0,300);
+    $('#tbl').innerHTML=tbl([['Date'],['Product'],['Type'],['Reference'],['Qty','r'],...(bal?[['Balance','r']]:[])],l.map(m=>[m.date,esc((prod(m.pid)||{}).name),esc(m.type),esc(m.ref)+(m.note?' <small>'+esc(m.note)+'</small>':''),`<span class="${m.qty<0?'dn':'up'}">${m.qty>0?'+':''}${qty(m.qty)}</span>`,...(bal?[qty(bal[m.id])]:[])]),'No stock movements yet.');
+  }
+};
+
+/* ---------- Sales ---------- */
+PAGES.sales=()=>{
+  UI.sales=UI.sales||{q:'',due:false,from:'',to:''};const u=UI.sales;
+  V().innerHTML=`<div class="bar"><input class="in grow" name="q" data-inp="sales" placeholder="Search invoice or customer" value="${esc(u.q)}"><label class="f" style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" name="due" data-inp="sales" ${u.due?'checked':''}> Unpaid only</label><input class="in" type="date" name="from" data-inp="sales" value="${u.from}" aria-label="From"><input class="in" type="date" name="to" data-inp="sales" value="${u.to}" aria-label="To"><a class="b b-p sp" href="#/pos" style="text-decoration:none">+ New sale (POS)</a><button class="b" data-act="sexport">Export CSV</button></div><div id="tbl"></div>`;
+  TBL.sales();
+};
+const salesFiltered=()=>{const u=UI.sales,q=u.q.toLowerCase();return [...S.sales].reverse().filter(s=>(!q||(s.no+' '+((cust(s.customerId)||{}).name||'walk-in')).toLowerCase().includes(q))&&(!u.due||dueOf(s)>0)&&inR(s.date,u.from,u.to))};
+TBL.sales=()=>{
+  const l=salesFiltered();
+  $('#tbl').innerHTML=tbl([['Invoice'],['Date'],['Customer'],['Total','r'],['Paid','r'],['Due','r'],['Status'],['']],l.slice(0,300).map(s=>{const d=dueOf(s);const st=s.returns.length?'<span class="bdg wn">Returned</span>':d>0?'<span class="bdg bad">Due</span>':'<span class="bdg ok">Paid</span>';return [esc(s.no),s.date,esc((cust(s.customerId)||{name:'Walk-in'}).name),money(s.total),money(s.paid+(s.credited||0)),money(d),st,bt('View','sview',{id:s.id})+' '+bt('Return','sret',{id:s.id})]}),'No sales found.',['Total','','',money(l.reduce((a,s)=>a+s.total,0)),money(l.reduce((a,s)=>a+s.paid+(s.credited||0),0)),money(l.reduce((a,s)=>a+dueOf(s),0)),'','']);
+};
+ACT.sexport=()=>download('sales.csv',csv([['invoice','date','customer','subtotal','discount','tax','total','paid','due'],...S.sales.map(s=>[s.no,s.date,(cust(s.customerId)||{name:'Walk-in'}).name,s.subtotal,s.discount,s.tax,s.total,s.paid+(s.credited||0),dueOf(s)])]));
+ACT.sview=(e,d)=>{const s=S.sales.find(x=>x.id===+d.id);modal('Invoice '+s.no,invoiceHTML(s),null,{wide:true});$('#mb').insertAdjacentHTML('beforeend',`<div style="margin-top:12px">${bt('Print','print',{id:s.id},'b-p')}</div>`)};
+ACT.sret=(e,d)=>{const s=S.sales.find(x=>x.id===+d.id);
+  modal('Sales return — '+s.no,`<p>Enter the quantity being returned. Stock and accounts update automatically. Any unpaid balance is reduced first; the rest is refunded.</p>${tbl([['Item'],['Sold','r'],['Already returned','r'],['Return now','r']],s.items.map((i,n)=>[esc(i.name),qty(i.qty),qty(i.returned),`<input class="in" style="width:90px" type="number" min="0" max="${i.qty-i.returned}" step="any" id="rq${n}">`]))}<div class="fg" style="margin-top:12px">${sel('Refund via','r_m',[['cash','Cash'],['bank','Bank']],'cash')}</div>`,()=>{
+    const qs=s.items.map((i,n)=>numv('rq'+n));const ok=tx(()=>saleReturn(s.id,qs,val('r_m')),'Return recorded');if(!ok)return false;refresh();
+  },{okText:'Record return'})};
+
+/* ---------- Orders (from order takers) ---------- */
+PAGES.orders=()=>{
+  const l=[...S.orders].reverse();const pend=S.orders.filter(o=>o.status==='Pending').length;
+  V().innerHTML=`<div class="bar"><b>${pend} pending</b><button class="b b-p sp" data-act="oimp">Import orders</button><button class="b" data-act="ocat">Export price list for order takers</button></div>`+
+  tbl([['Order'],['Date'],['Taker'],['Customer'],['Items','r'],['Total','r'],['Status'],['']],l.slice(0,300).map(o=>{const c=cust(o.customerId);const st=o.status==='Pending'?'<span class="bdg wn">Pending</span>':o.status==='Invoiced'?`<span class="bdg ok">Invoiced ${esc(o.saleNo)}</span>`:'<span class="bdg bad">Rejected</span>';
+    return [esc(o.no),o.date,esc(o.taker),c?esc(c.name):`<span class="dn">${esc(o.customerName||'Unknown')} (not matched)</span>`,o.items.length,money(orderTotal(o)),st,bt('View','oview',{id:o.id})+(o.status==='Pending'?' '+bt('Approve','oapp',{id:o.id},'b-p')+' '+bt('Reject','orej',{id:o.id},'b-d'):'')]}),'No orders yet. Order takers send orders by WhatsApp; paste them with “Import orders”.');
+};
+ACT.oimp=()=>modal('Import orders',`<p style="margin-top:0">Paste the WhatsApp messages from your order takers (all codes starting with <b>BSTO1:</b> are picked up), or choose a saved file.</p><textarea class="in" id="o_txt" rows="8" style="width:100%" placeholder="Paste here…"></textarea><div style="margin-top:10px">${bt('Choose file','ofile')}</div>`,()=>{
+  const t=val('o_txt');if(!t.trim()){toast('Paste something first','err');return false}
+  let r;const ok=tx(()=>{r=importOrders(t)});if(!ok)return false;
+  if(!r.found){toast('No order codes found in the text','err');return false}
+  toast(r.added+' order(s) added'+(r.dup?', '+r.dup+' already imported':'')+(r.bad?', '+r.bad+' unreadable':''),r.bad&&!r.added?'err':'');PAGES.orders();
+},{okText:'Import'});
+ACT.ofile=()=>pickFile('.txt,.json,text/plain,application/json',t=>{$('#o_txt').value=t});
+ACT.ocat=()=>modal('Export price list for order takers',`<p style="margin-top:0">Order takers get product names, prices and (optionally) stock. They <b>never</b> receive purchase cost, profit, balances or credit limits.</p><div class="fg">${sel('Show available stock','c_stock',[['1','Yes'],['0','No']],'1')}${fld('Only customers in city/area (optional)','c_filter','')}</div>`,()=>{
+  const c=buildCatalog({stock:val('c_stock')==='1',filter:val('c_filter')});
+  download('catalog.json',JSON.stringify(c),'application/json');toast(c.products.length+' products, '+c.customers.length+' customers exported');
+},{okText:'Download catalog.json'});
+ACT.oview=(e,d)=>{const o=S.orders.find(x=>x.id===+d.id);const c=cust(o.customerId);
+  modal('Order '+o.no,`<p style="margin-top:0">${o.date} · Taker: <b>${esc(o.taker)}</b> · ${o.level==='wholesale'?'Wholesale':'Retail'} prices</p>${o.status==='Pending'?`<div class="fg">${sel('Customer','o_c',[['','— Select customer —'],...S.customers.map(x=>[x.id,x.name])],o.customerId||'')}</div>`:`<p>Customer: <b>${c?esc(c.name):esc(o.customerName)}</b></p>`}<div style="margin-top:12px">${tbl([['Item'],['Qty','r'],['Price now','r'],['Amount','r'],['Stock','r']],o.items.map(i=>{const p=prod(i.pid);return [esc(p?p.name:i.name),qty(i.qty),money(orderPrice(o,i.pid)),money(i.qty*orderPrice(o,i.pid)),p?`<span class="${p.stock<i.qty?'dn':''}">${qty(p.stock)}</span>`:'—']}))}</div>${o.note?`<p>Note: ${esc(o.note)}</p>`:''}<p style="font-weight:800;font-size:17px">Total: ${money(orderTotal(o))}</p><p class="mut" style="color:var(--mut)">Prices always come from your current price list, not from the order taker’s phone.</p>`,o.status==='Pending'?()=>{const v=val('o_c');if(v){tx(()=>{S.orders.find(x=>x.id===o.id).customerId=+v},'Customer saved')}refresh()}:null,{wide:true,okText:'Save customer'})};
+ACT.oapp=(e,d)=>{const o=S.orders.find(x=>x.id===+d.id);if(!o.customerId){toast('Open the order and choose a customer first','err');return}
+  if(!confirm('Create a credit invoice for order '+o.no+'?'))return;
+  const s=tx(()=>approveOrder(o.id));if(s){toast('Invoice '+s.no+' created');refresh()}};
+ACT.orej=(e,d)=>{if(confirm('Reject this order?')){tx(()=>rejectOrder(+d.id),'Order rejected');refresh()}};
+
+/* ---------- Purchases ---------- */
+PAGES.purchases=()=>{
+  UI.pur=UI.pur||{q:'',from:'',to:''};const u=UI.pur;
+  V().innerHTML=`<div class="bar"><input class="in grow" name="q" data-inp="pur" placeholder="Search purchase or supplier" value="${esc(u.q)}"><input class="in" type="date" name="from" data-inp="pur" value="${u.from}" aria-label="From"><input class="in" type="date" name="to" data-inp="pur" value="${u.to}" aria-label="To"><button class="b b-p sp" data-act="pnew">+ New purchase</button></div><div id="tbl"></div>`;
+  TBL.pur();
+};
+TBL.pur=()=>{
+  const u=UI.pur,q=u.q.toLowerCase();
+  const l=[...S.purchases].reverse().filter(p=>(!q||(p.no+' '+((supp(p.supplierId)||{}).name||'')).toLowerCase().includes(q))&&inR(p.date,u.from,u.to));
+  $('#tbl').innerHTML=tbl([['Purchase'],['Date'],['Supplier'],['Total','r'],['Paid','r'],['Due','r'],['']],l.slice(0,300).map(p=>[esc(p.no),p.date,esc((supp(p.supplierId)||{name:'Cash purchase'}).name),money(p.total),money(p.paid+(p.credited||0)),money(pDueOf(p)),bt('View','pview',{id:p.id})+' '+bt('Return','pret',{id:p.id})]),'No purchases yet.',['Total','','',money(l.reduce((a,p)=>a+p.total,0)),money(l.reduce((a,p)=>a+p.paid+(p.credited||0),0)),money(l.reduce((a,p)=>a+pDueOf(p),0)),'']);
+};
+const prow=()=>`<div class="cl prow" style="grid-template-columns:1fr 80px 100px 26px;margin-bottom:6px"><select class="in pr-p" data-chg="pprod"><option value="">Select product…</option>${S.products.filter(p=>p.active).map(p=>`<option value="${p.id}" data-cost="${r2(p.cost)}">${esc(p.name)} (${esc(p.sku)})</option>`).join('')}</select><input class="in pr-q" type="number" min="0" step="any" placeholder="Qty" data-inp2="pcalc"><input class="in pr-c" type="number" min="0" step="any" placeholder="Cost" data-inp2="pcalc"><button class="b b-s b-d" data-act="prmrow" aria-label="Remove">✕</button></div>`;
+ACT.pnew=()=>{
+  if(!S.products.length){toast('Add products first','err');return}
+  modal('New purchase',`<div class="fg">${fld('Date','pu_d',today(),'date')}${sel('Supplier','pu_s',[['','— None (cash purchase) —'],...S.suppliers.map(s=>[s.id,s.name])],'')}${fld('Supplier invoice no.','pu_ref','')}</div><h4 style="margin:14px 0 8px">Items</h4><div id="prows">${prow()}</div><button class="b b-s" data-act="paddrow">+ Add row</button>
+  <div class="fg" style="margin-top:14px">${fld('Discount','pu_disc','','number','min="0" step="any" data-inp2="pcalc"')}${fld('Paid now','pu_paid','','number','min="0" step="any" data-inp2="pcalc"')}${sel('Paid via','pu_m',[['cash','Cash'],['bank','Bank']],'cash')}</div><p id="pu_tot" style="font-weight:800;font-size:17px;margin-top:12px"></p>`,()=>{
+    const items=$$('.prow').map(r=>({pid:+r.querySelector('.pr-p').value,qty:+r.querySelector('.pr-q').value,cost:+r.querySelector('.pr-c').value})).filter(i=>i.pid||i.qty);
+    const ok=tx(()=>createPurchase({date:val('pu_d'),supplierId:val('pu_s')?+val('pu_s'):null,ref:val('pu_ref'),items,discount:numv('pu_disc'),paid:val('pu_paid')===''?purTotal():numv('pu_paid'),method:val('pu_m')}),'Purchase saved');
+    if(!ok)return false;refresh();
+  },{wide:true});
+  ACT.pcalc();
+};
+function purTotal(){const g=$$('.prow').reduce((a,r)=>a+(+r.querySelector('.pr-q').value||0)*(+r.querySelector('.pr-c').value||0),0);return r2(g-Math.min(numv('pu_disc'),g))}
+ACT.pcalc=()=>{const t=$('#pu_tot');if(t)t.textContent='Total: '+money(purTotal())+(val('pu_paid')===''?' (paid in full unless you enter an amount)':'')};
+ACT.paddrow=()=>$('#prows').insertAdjacentHTML('beforeend',prow());
+ACT.prmrow=e=>{if($$('.prow').length>1){e.closest('.prow').remove();ACT.pcalc()}};
+CHG.pprod=e=>{const o=e.selectedOptions[0];const r=e.closest('.prow');if(o&&o.dataset.cost!==undefined){r.querySelector('.pr-c').value=o.dataset.cost;r.querySelector('.pr-q').focus()}ACT.pcalc()};
+ACT.pview=(e,d)=>{const p=S.purchases.find(x=>x.id===+d.id);const sp=supp(p.supplierId);
+  modal('Purchase '+p.no,`<p>${p.date} · ${sp?esc(sp.name):'Cash purchase'} ${p.ref?'· Ref '+esc(p.ref):''}</p>${tbl([['Item'],['Qty','r'],['Cost','r'],['Amount','r']],p.items.map(i=>[esc(i.name)+(i.returned?` <small>(returned ${qty(i.returned)})</small>`:''),qty(i.qty),money(i.cost),money(i.qty*i.cost)]))}<div class="tot" style="margin-top:10px"><span>Discount</span><span>${money(p.discount)}</span></div><div class="tot big"><span>Total</span><span>${money(p.total)}</span></div><div class="tot"><span>Paid</span><span>${money(p.paid+(p.credited||0))}</span></div><div class="tot"><b>Due</b><b>${money(pDueOf(p))}</b></div>`,null,{wide:true})};
+ACT.pret=(e,d)=>{const p=S.purchases.find(x=>x.id===+d.id);
+  modal('Purchase return — '+p.no,`<p>Returns reduce stock and what you owe the supplier. Any refund is taken as cash or bank.</p>${tbl([['Item'],['Bought','r'],['Already returned','r'],['Return now','r']],p.items.map((i,n)=>[esc(i.name),qty(i.qty),qty(i.returned),`<input class="in" style="width:90px" type="number" min="0" max="${i.qty-i.returned}" step="any" id="rq${n}">`]))}<div class="fg" style="margin-top:12px">${sel('Refund received via','r_m',[['cash','Cash'],['bank','Bank']],'cash')}</div>`,()=>{
+    const qs=p.items.map((i,n)=>numv('rq'+n));const ok=tx(()=>purchaseReturn(p.id,qs,val('r_m')),'Return recorded');if(!ok)return false;refresh();
+  },{okText:'Record return'})};
+
+/* ---------- Customers & Suppliers ---------- */
+function partyPage(kind){
+  const key=kind==='c'?'cus':'sup';UI[key]=UI[key]||{q:'',owing:false};const u=UI[key];
+  V().innerHTML=`<div class="bar"><input class="in grow" name="q" data-inp="${key}" placeholder="Search ${kind==='c'?'customers':'suppliers'}" value="${esc(u.q)}"><label class="f" style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" name="owing" data-inp="${key}" ${u.owing?'checked':''}> ${kind==='c'?'Owing us':'We owe'}</label><button class="b b-p sp" data-act="party-new" data-k="${kind}">+ Add ${kind==='c'?'customer':'supplier'}</button><button class="b" data-act="party-exp" data-k="${kind}">Export CSV</button></div><div id="tbl"></div>`;
+  TBL[key]();
+}
+function partyTbl(kind){
+  const key=kind==='c'?'cus':'sup',u=UI[key],q=u.q.toLowerCase();
+  const bal=c=>kind==='c'?custBalance(c):supBalance(c);
+  const l=(kind==='c'?S.customers:S.suppliers).filter(c=>(!q||(c.name+c.company+c.phone+c.city).toLowerCase().includes(q))&&(!u.owing||bal(c)>0));
+  $('#tbl').innerHTML=tbl([['Name'],['Phone'],['City'],...(kind==='c'?[['Credit limit','r']]:[]),['Balance','r'],['']],l.map(c=>[`<b>${esc(c.name)}</b>${c.company?'<br><small>'+esc(c.company)+'</small>':''}`,esc(c.phone),esc(c.city),...(kind==='c'?[c.creditLimit?money(c.creditLimit):'—']:[]),`<b class="${bal(c)>0?'dn':''}">${money(bal(c))}</b>`,bt('Statement','stmt',{k:kind,id:c.id})+' '+bt(kind==='c'?'Receive':'Pay','ppay',{k:kind,id:c.id},'b-p')+' '+bt('Edit','party-edit',{k:kind,id:c.id})]),'Nothing here yet.',['Total','','',...(kind==='c'?['']:[]),money(l.reduce((a,c)=>a+bal(c),0)),'']);
+}
+PAGES.customers=()=>partyPage('c');PAGES.suppliers=()=>partyPage('s');
+TBL.cus=()=>partyTbl('c');TBL.sup=()=>partyTbl('s');
+function partyForm(kind,c){return `<div class="fg">${fld('Name *','c_name',c&&c.name)}${fld('Company','c_co',c&&c.company)}${fld('Phone','c_ph',c&&c.phone)}${fld('WhatsApp','c_wa',c&&c.whatsapp)}${fld('Email','c_em',c&&c.email,'email')}${fld('City','c_city',c&&c.city)}${fld('Area','c_area',c&&c.area)}${fld('Address','c_addr',c&&c.address)}${kind==='c'?fld('Credit limit (0 = none)','c_lim',c&&c.creditLimit,'number','min="0"'):''}${c?'':fld('Opening balance','c_open','','number','min="0" step="any"')}</div>`}
+const partyVals=kind=>({name:val('c_name'),company:val('c_co'),phone:val('c_ph'),whatsapp:val('c_wa'),email:val('c_em'),city:val('c_city'),area:val('c_area'),address:val('c_addr'),creditLimit:kind==='c'?numv('c_lim'):0,opening:numv('c_open')});
+ACT['party-new']=(e,d)=>modal('Add '+(d.k==='c'?'customer':'supplier'),partyForm(d.k),()=>{const ok=tx(()=>createParty(d.k,partyVals(d.k)),'Saved');if(!ok)return false;refresh()});
+ACT['party-edit']=(e,d)=>{const c=(d.k==='c'?cust:supp)(+d.id);modal('Edit '+c.name,partyForm(d.k,c),()=>{const ok=tx(()=>{const v=partyVals(d.k);if(!v.name.trim())throw new Error('Name is required');const x=(d.k==='c'?cust:supp)(c.id);Object.assign(x,{name:v.name.trim(),company:v.company,phone:v.phone,whatsapp:v.whatsapp,email:v.email,city:v.city,area:v.area,address:v.address});if(d.k==='c')x.creditLimit=v.creditLimit},'Saved');if(!ok)return false;refresh()})};
+ACT['party-exp']=(e,d)=>{const c=d.k==='c';download(c?'customers.csv':'suppliers.csv',csv([['name','company','phone','email','city','balance'],...(c?S.customers:S.suppliers).map(x=>[x.name,x.company,x.phone,x.email,x.city,c?custBalance(x):supBalance(x)])]))};
+ACT.ppay=(e,d)=>{const c=(d.k==='c'?cust:supp)(+d.id);const bal=d.k==='c'?custBalance(c):supBalance(c);
+  modal((d.k==='c'?'Receive payment from ':'Pay ')+c.name,`<p>Current balance: <b>${money(bal)}</b>. Payment is applied to the oldest unpaid invoices first.</p><div class="fg">${fld('Date','p_d',today(),'date')}${fld('Amount','p_a',bal||'','number','min="0" step="any"')}${sel('Method','p_m',[['cash','Cash'],['bank','Bank'],['card','Card'],['online','Online']],'cash')}${fld('Note','p_n','')}</div>`,()=>{
+    const ok=tx(()=>d.k==='c'?receive(c.id,numv('p_a'),val('p_m'),val('p_d'),val('p_n')):paySupplier(c.id,numv('p_a'),val('p_m'),val('p_d'),val('p_n')),'Payment recorded');if(!ok)return false;refresh();
+  },{okText:'Record payment'})};
+function stmtRows(kind,c){
+  const rows=[];
+  if(kind==='c'){
+    S.sales.filter(s=>s.customerId===c.id).forEach(s=>{rows.push([s.date,s.id,'Invoice '+s.no,s.total,0]);if(s.paid0)rows.push([s.date,s.id+.1,'Paid at sale',0,s.paid0]);s.returns.forEach((r,i)=>{rows.push([r.date,s.id+.2+i/100,'Return '+s.no,0,r.tot]);if(r.refund)rows.push([r.date,s.id+.3+i/100,'Refund paid',r.refund,0])})});
+    S.payments.filter(p=>p.type==='in'&&p.partyId===c.id).forEach(p=>rows.push([p.date,p.id,'Receipt '+p.no,0,p.amount]));
+  }else{
+    S.purchases.filter(p=>p.supplierId===c.id).forEach(p=>{rows.push([p.date,p.id,'Purchase '+p.no,p.total,0]);if(p.paid0)rows.push([p.date,p.id+.1,'Paid at purchase',0,p.paid0]);p.returns.forEach((r,i)=>{rows.push([r.date,p.id+.2+i/100,'Return '+p.no,0,r.val]);if(r.refund)rows.push([r.date,p.id+.3+i/100,'Refund received',r.refund,0])})});
+    S.payments.filter(p=>p.type==='out'&&p.partyId===c.id).forEach(p=>rows.push([p.date,p.id,'Payment '+p.no,0,p.amount]));
+  }
+  rows.sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:a[1]-b[1]);
+  let b=c.openingInit;const out=[['','','Opening balance','','',money(b)]];
+  rows.forEach(r=>{b=r2(b+r[3]-r[4]);out.push([r[0],'',r[2],r[3]?money(r[3]):'',r[4]?money(r[4]):'',money(b)])});
+  return out;
+}
+ACT.stmt=(e,d)=>{const c=(d.k==='c'?cust:supp)(+d.id);const bal=d.k==='c'?custBalance(c):supBalance(c);
+  const html=`<div class="inv"><div class="inv-h"><div><h2>${esc(S.settings.name)}</h2><div>Statement of account</div></div><div class="r"><b>${esc(c.name)}</b><div>${esc(c.phone)}</div><div>${today()}</div></div></div>${tbl([['Date'],[''],['Details'],[d.k==='c'?'Charges':'Purchases','r'],['Payments','r'],['Balance','r']],stmtRows(d.k,c).map(r=>r.map((v,i)=>i===1?'':v)))}<div class="sum"><div><b>Balance</b><b>${money(bal)}</b></div></div></div>`;
+  modal('Statement — '+c.name,html,null,{wide:true});
+  $('#mb').insertAdjacentHTML('beforeend',`<div style="margin-top:12px;display:flex;gap:8px"><button class="b b-p" id="pst">Print</button></div>`);
+  $('#pst').onclick=()=>printHTML(html);
+};
+CHG.dummy=()=>{};
+
+/* ---------- Payments ---------- */
+PAGES.payments=()=>{
+  UI.pay=UI.pay||{type:''};const u=UI.pay;
+  V().innerHTML=`<div class="bar"><div class="tabs">${[['','All'],['in','Received'],['out','Paid to suppliers']].map(([k,t])=>`<button data-act="ptype" data-t="${k}" aria-pressed="${u.type===k}">${t}</button>`).join('')}</div><button class="b b-p sp" data-act="pnewc">Receive from customer</button><button class="b" data-act="pnews">Pay supplier</button></div><div id="tbl"></div>`;
+  const l=[...S.payments].reverse().filter(p=>!u.type||p.type===u.type);
+  $('#tbl').innerHTML=tbl([['Ref'],['Date'],['Type'],['Party'],['Method'],['Amount','r']],l.slice(0,300).map(p=>[esc(p.no),p.date,p.type==='in'?'<span class="bdg ok">Received</span>':'<span class="bdg wn">Paid</span>',esc(((p.type==='in'?cust(p.partyId):supp(p.partyId))||{}).name),esc(p.method),money(p.amount)]),'No payments yet. Payments made at the time of sale or purchase are on the invoice itself.');
+};
+ACT.ptype=(e,d)=>{UI.pay.type=d.t;PAGES.payments()};
+ACT.pnewc=()=>{if(!S.customers.length){toast('Add a customer first','err');return}modal('Receive payment',`<div class="fg">${sel('Customer','pp_c',S.customers.map(c=>[c.id,c.name+' — '+money(custBalance(c))]),'')}</div>`,()=>{const id=val('pp_c');setTimeout(()=>ACT.ppay(null,{k:'c',id}),0)},{okText:'Next'})};
+ACT.pnews=()=>{if(!S.suppliers.length){toast('Add a supplier first','err');return}modal('Pay supplier',`<div class="fg">${sel('Supplier','pp_c',S.suppliers.map(c=>[c.id,c.name+' — '+money(supBalance(c))]),'')}</div>`,()=>{const id=val('pp_c');setTimeout(()=>ACT.ppay(null,{k:'s',id}),0)},{okText:'Next'})};
+
+/* ---------- Expenses ---------- */
+const expAccts=()=>S.accounts.filter(a=>a.type==='expense'&&a.code!=='5000');
+PAGES.expenses=()=>{
+  UI.exp=UI.exp||{cat:'',from:'',to:''};const u=UI.exp;
+  V().innerHTML=`<div class="bar"><select class="in" name="cat" data-inp="exp"><option value="">All categories</option>${opt(expAccts().map(a=>[a.code,a.name]),u.cat)}</select><input class="in" type="date" name="from" data-inp="exp" value="${u.from}" aria-label="From"><input class="in" type="date" name="to" data-inp="exp" value="${u.to}" aria-label="To"><button class="b b-p sp" data-act="enew">+ Add expense</button></div><div id="tbl"></div>`;
+  TBL.exp();
+};
+TBL.exp=()=>{
+  const u=UI.exp;const l=[...S.expenses].reverse().filter(e=>(!u.cat||e.acc===u.cat)&&inR(e.date,u.from,u.to));
+  const tot=r2(l.filter(e=>!e.voided).reduce((a,e)=>a+e.amount,0));
+  $('#tbl').innerHTML=tbl([['Date'],['Category'],['Note'],['Method'],['Amount','r'],['']],l.slice(0,300).map(e=>[e.date,esc((acct(e.acc)||{}).name),esc(e.note),esc(e.method),e.voided?'<s>'+money(e.amount)+'</s> <span class="bdg">voided</span>':money(e.amount),e.voided?'':bt('Void','evoid',{id:e.id},'b-d')]),'No expenses yet.',['Total','','','',money(tot),'']);
+};
+ACT.enew=()=>modal('Add expense',`<div class="fg">${fld('Date','e_d',today(),'date')}${sel('Category','e_c',expAccts().map(a=>[a.code,a.name]),'6000')}${fld('Amount','e_a','','number','min="0" step="any"')}${sel('Paid via','e_m',[['cash','Cash'],['bank','Bank']],'cash')}${fld('Note','e_n','')}</div>`,()=>{const ok=tx(()=>addExpense({date:val('e_d'),acc:val('e_c'),amount:numv('e_a'),method:val('e_m'),note:val('e_n')}),'Expense saved');if(!ok)return false;refresh()});
+ACT.evoid=(e,d)=>{if(confirm('Void this expense? A reversing entry is posted; the record is kept.')){tx(()=>voidExpense(+d.id),'Expense voided');refresh()}};
+
+/* ---------- Accounting ---------- */
+PAGES.accounting=()=>{
+  UI.acc=UI.acc||{tab:'coa',code:'1000',from:rangeOf('month')[0],to:today()};const u=UI.acc;
+  const tabs=[['coa','Chart of accounts'],['journal','Journal'],['ledger','Ledger'],['tb','Trial balance'],['pl','Profit & loss'],['bs','Balance sheet']];
+  V().innerHTML=`<div class="bar"><div class="tabs">${tabs.map(([k,t])=>`<button data-act="atab" data-t="${k}" aria-pressed="${u.tab===k}">${t}</button>`).join('')}</div>
+  ${u.tab==='coa'?`<button class="b sp" data-act="anew">+ Account</button><button class="b" data-act="aopen">Opening cash / bank</button>`:''}${u.tab==='journal'?`<button class="b b-p sp" data-act="jnew">+ Manual journal</button>`:''}
+  ${u.tab==='ledger'?`<select class="in grow" name="code" data-inp="acc">${opt(S.accounts.map(a=>[a.code,a.code+' · '+a.name]),u.code)}</select>`:''}
+  ${u.tab==='pl'?`<input class="in sp" type="date" name="from" data-inp="acc" value="${u.from}" aria-label="From"><input class="in" type="date" name="to" data-inp="acc" value="${u.to}" aria-label="To">`:''}</div><div id="tbl"></div>`;
+  TBL.acc();
+};
+ACT.atab=(e,d)=>{UI.acc.tab=d.t;PAGES.accounting()};
+const typeName={asset:'Asset',liability:'Liability',equity:'Equity',income:'Income',expense:'Expense'};
+TBL.acc=()=>{
+  const u=UI.acc,box=$('#tbl');
+  if(u.tab==='coa')box.innerHTML=tbl([['Code'],['Account'],['Type'],['Balance','r']],S.accounts.map(a=>[a.code,esc(a.name),typeName[a.type],money(natBal(a))]));
+  if(u.tab==='journal'){const l=[...S.journal].reverse().slice(0,150);box.innerHTML=tbl([['Date'],['Ref'],['Description'],['Account'],['Debit','r'],['Credit','r']],l.flatMap(j=>j.lines.map((x,i)=>[i?'':j.date,i?'':esc(j.ref),i?'':esc(j.memo),esc(x.acc+' '+(acct(x.acc)||{}).name),x.dr?money(x.dr):'',x.cr?money(x.cr):''])),'No journal entries yet.')}
+  if(u.tab==='ledger'){const a=acct(u.code);let b=0,rows=[];S.journal.forEach(j=>j.lines.forEach(l=>{if(l.acc===u.code){b=r2(b+((a.type==='asset'||a.type==='expense')?l.dr-l.cr:l.cr-l.dr));rows.push([j.date,esc(j.ref),esc(j.memo),l.dr?money(l.dr):'',l.cr?money(l.cr):'',money(b)])}}));box.innerHTML=tbl([['Date'],['Ref'],['Description'],['Debit','r'],['Credit','r'],['Balance','r']],rows.reverse().slice(0,400),'No transactions on this account.')}
+  if(u.tab==='tb'){let D=0,C=0;const rows=S.accounts.map(a=>{const x=acctTotals(a.code);const n=r2(x.dr-x.cr);const d=n>0?n:0,c=n<0?-n:0;D+=d;C+=c;return [a.code,esc(a.name),d?money(d):'',c?money(c):'']});box.innerHTML=tbl([['Code'],['Account'],['Debit','r'],['Credit','r']],rows,'',['','Total',money(D),money(C)])+`<p style="margin-top:10px">${r2(D)===r2(C)?'<span class="bdg ok">Balanced</span>':'<span class="bdg bad">Out of balance</span>'}</p>`}
+  if(u.tab==='pl'){
+    const g=t=>S.accounts.filter(a=>a.type===t).map(a=>[a,natBal(a,u.from,u.to)]);
+    const inc=g('income'),cogs=g('expense').filter(x=>x[0].code==='5000'),oth=g('expense').filter(x=>x[0].code!=='5000');
+    const sum=l=>r2(l.reduce((a,x)=>a+x[1],0));const gp=r2(sum(inc)-sum(cogs)),np=r2(gp-sum(oth));
+    const sec=(t,l,s)=>`<tr><td colspan="2"><b>${t}</b></td></tr>${l.map(x=>`<tr><td>&nbsp;&nbsp;${esc(x[0].name)}</td><td class="r">${money(x[1])}</td></tr>`).join('')}<tr><td><b>Total ${t.toLowerCase()}</b></td><td class="r"><b>${money(s)}</b></td></tr>`;
+    box.innerHTML=`<div class="tw"><table class="tbl"><tbody>${sec('Income',inc,sum(inc))}${sec('Cost of goods sold',cogs,sum(cogs))}<tr><td><b>Gross profit</b></td><td class="r"><b>${money(gp)}</b></td></tr>${sec('Expenses',oth,sum(oth))}<tr><td><b>Net profit</b></td><td class="r"><b class="${np<0?'dn':'up'}">${money(np)}</b></td></tr></tbody></table></div>`;
+  }
+  if(u.tab==='bs'){
+    const g=t=>S.accounts.filter(a=>a.type===t).map(a=>[a,natBal(a)]);const A=g('asset'),L=g('liability'),E=g('equity');
+    const earn=r2(g('income').reduce((a,x)=>a+x[1],0)-g('expense').reduce((a,x)=>a+x[1],0));
+    const sum=l=>r2(l.reduce((a,x)=>a+x[1],0));const eq=r2(sum(E)+earn);
+    const sec=(t,l,s,extra)=>`<tr><td colspan="2"><b>${t}</b></td></tr>${l.map(x=>`<tr><td>&nbsp;&nbsp;${esc(x[0].name)}</td><td class="r">${money(x[1])}</td></tr>`).join('')}${extra||''}<tr><td><b>Total ${t.toLowerCase()}</b></td><td class="r"><b>${money(s)}</b></td></tr>`;
+    box.innerHTML=`<div class="tw"><table class="tbl"><tbody>${sec('Assets',A,sum(A))}${sec('Liabilities',L,sum(L))}${sec('Equity',E,eq,`<tr><td>&nbsp;&nbsp;Retained earnings (all time)</td><td class="r">${money(earn)}</td></tr>`)}</tbody></table></div><p style="margin-top:10px">${r2(sum(A))===r2(sum(L)+eq)?'<span class="bdg ok">Assets = Liabilities + Equity</span>':'<span class="bdg bad">Does not balance</span>'}</p>`;
+  }
+};
+ACT.anew=()=>modal('New account',`<div class="fg">${fld('Code','n_code','')}${fld('Name','n_name','')}${sel('Type','n_type',Object.entries(typeName),'expense')}</div>`,()=>{const ok=tx(()=>{const c=val('n_code').trim(),n=val('n_name').trim();if(!c||!n)throw new Error('Code and name are required');if(acct(c))throw new Error('Code already exists');S.accounts.push({code:c,name:n,type:val('n_type')});S.accounts.sort((a,b)=>a.code<b.code?-1:1)},'Account added');if(!ok)return false;PAGES.accounting()});
+ACT.aopen=()=>modal('Opening cash / bank balance',`<p>Posts a balanced entry against Owner's Equity.</p><div class="fg">${fld('Date','o_d',today(),'date')}${sel('Account','o_a',[['1000','Cash in Hand'],['1010','Bank Account']],'1000')}${fld('Amount','o_v','','number','min="0" step="any"')}</div>`,()=>{const ok=tx(()=>{const v=r2(numv('o_v'));if(!(v>0))throw new Error('Enter an amount');post(val('o_d'),'OPEN','Opening balance',[{acc:val('o_a'),dr:v},{acc:'3000',cr:v}])},'Opening balance posted');if(!ok)return false;PAGES.accounting()});
+ACT.jnew=()=>{const ao=S.accounts.map(a=>[a.code,a.code+' · '+a.name]);const row=()=>`<div class="cl jrow" style="grid-template-columns:1fr 100px 100px;margin-bottom:6px"><select class="in j-a">${opt(ao,'')}</select><input class="in j-d" type="number" min="0" step="any" placeholder="Debit"><input class="in j-c" type="number" min="0" step="any" placeholder="Credit"></div>`;
+  modal('Manual journal entry',`<div class="fg">${fld('Date','j_d',today(),'date')}${fld('Description','j_m','')}</div><div id="jrows" style="margin-top:12px">${row()}${row()}</div><button class="b b-s" id="jadd">+ Add line</button>`,()=>{const lines=$$('.jrow').map(r=>({acc:r.querySelector('.j-a').value,dr:+r.querySelector('.j-d').value||0,cr:+r.querySelector('.j-c').value||0}));const ok=tx(()=>{if(lines.filter(l=>l.dr||l.cr).length<2)throw new Error('Enter at least two lines');manualJournal(val('j_d'),val('j_m'),lines)},'Journal posted');if(!ok)return false;PAGES.accounting()},{wide:true});
+  $('#jadd').onclick=()=>$('#jrows').insertAdjacentHTML('beforeend',row())};
+
+/* ---------- Reports ---------- */
+const REPORTS={
+  salesday:{t:'Sales by day',d:1,cols:[['Date'],['Invoices','r'],['Sales','r'],['Paid at sale','r']],run:(f,t)=>{const m={};S.sales.filter(s=>inR(s.date,f,t)).forEach(s=>{const x=m[s.date]=m[s.date]||[0,0,0];x[0]++;x[1]+=s.total;x[2]+=s.paid0});return Object.keys(m).sort().map(k=>[k,m[k][0],r2(m[k][1]),r2(m[k][2])])},types:['t','q','m','m']},
+  salesprod:{t:'Sales & profit by product',d:1,cols:[['Product'],['Qty sold','r'],['Sales','r'],['Cost','r'],['Profit','r']],run:(f,t)=>{const m={};S.sales.filter(s=>inR(s.date,f,t)).forEach(s=>{const k=s.subtotal?1-s.discount/s.subtotal:1;s.items.forEach(i=>{const n=i.qty-i.returned;const x=m[i.name]=m[i.name]||[0,0,0];x[0]+=n;x[1]+=n*i.price*k;x[2]+=n*i.cost})});return Object.entries(m).sort((a,b)=>b[1][1]-a[1][1]).map(([k,x])=>[k,r3(x[0]),r2(x[1]),r2(x[2]),r2(x[1]-x[2])])},types:['t','q','m','m','m']},
+  salescust:{t:'Sales by customer',d:1,cols:[['Customer'],['Invoices','r'],['Sales','r'],['Balance','r']],run:(f,t)=>{const m={};S.sales.filter(s=>inR(s.date,f,t)).forEach(s=>{const k=s.customerId||0;const x=m[k]=m[k]||[0,0];x[0]++;x[1]+=s.total});return Object.entries(m).sort((a,b)=>b[1][1]-a[1][1]).map(([k,x])=>[+k?cust(+k).name:'Walk-in',x[0],r2(x[1]),+k?custBalance(cust(+k)):0])},types:['t','q','m','m']},
+  salescat:{t:'Sales by category',d:1,cols:[['Category'],['Qty','r'],['Sales','r']],run:(f,t)=>{const m={};S.sales.filter(s=>inR(s.date,f,t)).forEach(s=>s.items.forEach(i=>{const c=(prod(i.pid)||{}).category||'—';const x=m[c]=m[c]||[0,0];x[0]+=i.qty-i.returned;x[1]+=(i.qty-i.returned)*i.price}));return Object.entries(m).sort((a,b)=>b[1][1]-a[1][1]).map(([k,x])=>[k,r3(x[0]),r2(x[1])])},types:['t','q','m']},
+  purchsup:{t:'Purchases by supplier',d:1,cols:[['Supplier'],['Purchases','r'],['Total','r'],['Balance','r']],run:(f,t)=>{const m={};S.purchases.filter(p=>inR(p.date,f,t)).forEach(p=>{const k=p.supplierId||0;const x=m[k]=m[k]||[0,0];x[0]++;x[1]+=p.total});return Object.entries(m).sort((a,b)=>b[1][1]-a[1][1]).map(([k,x])=>[+k?supp(+k).name:'Cash purchases',x[0],r2(x[1]),+k?supBalance(supp(+k)):0])},types:['t','q','m','m']},
+  stockval:{t:'Stock valuation',cols:[['Product'],['Stock','r'],['Cost','r'],['Value','r']],run:()=>S.products.filter(p=>p.stock!==0).map(p=>[p.name,p.stock,r2(p.cost),r2(p.stock*p.cost)]).sort((a,b)=>b[3]-a[3]),types:['t','q','m','m']},
+  lowstock:{t:'Low stock',cols:[['Product'],['Stock','r'],['Minimum','r']],run:()=>S.products.filter(p=>p.active&&p.min>0&&p.stock<=p.min).map(p=>[p.name,p.stock,p.min]),types:['t','q','q']},
+  deadstock:{t:'Dead stock (no sale in 60 days)',cols:[['Product'],['Stock','r'],['Value','r'],['Last sold']],run:()=>{const cut=dayOff(-60);return S.products.filter(p=>p.stock>0).map(p=>{const m=S.movements.filter(x=>x.pid===p.id&&x.type==='Sale');const last=m.length?m[m.length-1].date:'never';return[p,last]}).filter(x=>x[1]==='never'||x[1]<cut).map(x=>[x[0].name,x[0].stock,r2(x[0].stock*x[0].cost),x[1]])},types:['t','q','m','t']},
+  fastmove:{t:'Fast moving (last 30 days)',cols:[['Product'],['Qty sold','r'],['Stock','r']],run:()=>{const cut=dayOff(-30);const m={};S.movements.filter(x=>x.type==='Sale'&&x.date>=cut).forEach(x=>m[x.pid]=(m[x.pid]||0)-x.qty);return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,30).map(([k,v])=>[prod(+k).name,r3(v),prod(+k).stock])},types:['t','q','q']},
+  slowmove:{t:'Slow moving (last 30 days)',cols:[['Product'],['Qty sold','r'],['Stock','r']],run:()=>{const cut=dayOff(-30);const m={};S.movements.filter(x=>x.type==='Sale'&&x.date>=cut).forEach(x=>m[x.pid]=(m[x.pid]||0)-x.qty);return S.products.filter(p=>p.stock>0).map(p=>[p.name,r3(m[p.id]||0),p.stock]).sort((a,b)=>a[1]-b[1]).slice(0,30)},types:['t','q','q']},
+  arag:{t:'Receivables aging',cols:[['Customer'],['Current','r'],['1–30','r'],['31–60','r'],['61–90','r'],['90+','r'],['Total','r']],run:()=>agingRows('c'),types:['t','m','m','m','m','m','m']},
+  apag:{t:'Payables aging',cols:[['Supplier'],['Current','r'],['1–30','r'],['31–60','r'],['61–90','r'],['90+','r'],['Total','r']],run:()=>agingRows('s'),types:['t','m','m','m','m','m','m']}
+};
+function agingRows(kind){
+  const list=kind==='c'?S.customers:S.suppliers,out=[];
+  list.forEach(c=>{const b=[0,0,0,0,0];
+    (kind==='c'?S.sales.filter(s=>s.customerId===c.id).map(s=>[s.date,dueOf(s)]):S.purchases.filter(p=>p.supplierId===c.id).map(p=>[p.date,pDueOf(p)])).forEach(([d,v])=>{if(v<=0)return;const age=daysBetween(d,today());b[age<=0?0:age<=30?1:age<=60?2:age<=90?3:4]+=v});
+    b[4]+=c.opening;const tot=b.reduce((a,x)=>a+x,0);if(tot>0)out.push([c.name,...b.map(r2),r2(tot)])});
+  return out.sort((a,b)=>b[6]-a[6]);
+}
+PAGES.reports=()=>{
+  UI.rep=UI.rep||{id:'salesday',from:rangeOf('month')[0],to:today()};const u=UI.rep;const R=REPORTS[u.id];
+  V().innerHTML=`<div class="bar"><select class="in" name="id" data-inp="rep" aria-label="Report">${opt(Object.entries(REPORTS).map(([k,r])=>[k,r.t]),u.id)}</select>${R.d?`<input class="in" type="date" name="from" data-inp="rep" value="${u.from}" aria-label="From"><input class="in" type="date" name="to" data-inp="rep" value="${u.to}" aria-label="To">`:''}<button class="b sp" data-act="rcsv">Export CSV</button><button class="b b-p" data-act="rprint">Print</button></div><div id="tbl"></div>`;
+  TBL.rep();
+};
+function repData(){const u=UI.rep,R=REPORTS[u.id];return{R,rows:R.run(u.from,u.to)}}
+TBL.rep=()=>{const{R,rows}=repData();const f=(v,t)=>t==='m'?money(v):t==='q'?qty(v):esc(v);const tot=R.types.map((t,i)=>i===0?'Total':(t==='m'?money(rows.reduce((a,r)=>a+(+r[i]||0),0)):''));
+  $('#tbl').innerHTML=tbl(R.cols.map((c,i)=>[c[0],R.types[i]==='t'?'':'r']),rows.map(r=>r.map((v,i)=>f(v,R.types[i]))),'No data for this report.',rows.length&&R.types.includes('m')?tot:null)};
+ACT.rcsv=()=>{const{R,rows}=repData();download(UI.rep.id+'.csv',csv([R.cols.map(c=>c[0]),...rows]))};
+ACT.rprint=()=>{const{R}=repData();printHTML(`<div class="inv"><h2>${esc(S.settings.name)}</h2><h3 style="margin:6px 0 12px;letter-spacing:0">${esc(R.t)}</h3>${$('#tbl').innerHTML}</div>`)};
+
+/* ---------- Settings ---------- */
+PAGES.settings=()=>{
+  const s=S.settings;
+  V().innerHTML=`<div class="panel"><h3>Business profile</h3><div class="fg">${fld('Business name','s_name',s.name)}${fld('Phone','s_ph',s.phone)}${fld('Email','s_em',s.email)}${fld('Address','s_ad',s.address)}${fld('Currency symbol','s_cur',s.currency)}${fld('Default tax %','s_tax',s.taxRate,'number','min="0" step="any"')}${fld('Invoice prefix','s_pre',s.invPrefix)}${fld('Invoice footer','s_ft',s.footer)}${sel('Selling with zero stock','s_neg',[['0','Not allowed'],['1','Allowed']],s.allowNegative?'1':'0')}</div><div style="margin-top:14px"><button class="b b-p" data-act="ssave">Save settings</button></div></div>
+  <div class="panel"><h3>Your data</h3><p style="color:var(--mut);margin-top:0">${persist?'All data is stored in this browser on this device.':'<b class="dn">Browser storage is unavailable — data will be lost when you close this page.</b>'} Download a backup regularly and keep it somewhere safe.</p>
+  <div class="bar"><button class="b b-p" data-act="bkexp">Download backup (JSON)</button><button class="b" data-act="bkimp">Restore from backup</button></div>
+  <div class="bar"><button class="b" data-act="ex" data-t="customers">Export customers</button><button class="b" data-act="ex" data-t="suppliers">Export suppliers</button><button class="b" data-act="pexport">Export products</button><button class="b" data-act="sexport">Export sales</button><button class="b" data-act="ex" data-t="purchases">Export purchases</button><button class="b" data-act="ex" data-t="payments">Export payments</button><button class="b" data-act="ex" data-t="expenses">Export expenses</button></div></div>
+  <div class="panel"><h3>Demo &amp; reset</h3><div class="bar"><button class="b" data-act="demo">Load demo data</button><button class="b b-d" data-act="wipe">Erase everything</button></div></div>`;
+};
+ACT.ssave=()=>{tx(()=>Object.assign(S.settings,{name:val('s_name').trim()||'Business',phone:val('s_ph'),email:val('s_em'),address:val('s_ad'),currency:val('s_cur')||'Rs',taxRate:numv('s_tax'),invPrefix:val('s_pre'),footer:val('s_ft'),allowNegative:val('s_neg')==='1'}),'Settings saved');POS.tax=S.settings.taxRate};
+ACT.bkexp=()=>download('be-shad-trader-backup-'+today()+'.json',JSON.stringify(S),'application/json');
+ACT.bkimp=()=>pickFile('.json,application/json',t=>{try{const x=JSON.parse(t);if(!x.accounts||!x.journal)throw new Error('This is not a BE SHAD TRADER backup');if(!confirm('Replace all current data with this backup?'))return;S=Object.assign(fresh(),x);save();toast('Backup restored');go('dashboard');render()}catch(e){toast(e.message,'err')}});
+ACT.wipe=()=>{if(prompt('Type ERASE to delete all data on this device')==='ERASE'){S=fresh();save();toast('All data erased');go('dashboard');render()}};
+ACT.ex=(e,d)=>{const t=d.t;const m={
+  customers:[['name','phone','city','balance'],()=>S.customers.map(c=>[c.name,c.phone,c.city,custBalance(c)])],
+  suppliers:[['name','phone','city','balance'],()=>S.suppliers.map(c=>[c.name,c.phone,c.city,supBalance(c)])],
+  purchases:[['purchase','date','supplier','total','paid','due'],()=>S.purchases.map(p=>[p.no,p.date,(supp(p.supplierId)||{}).name||'Cash',p.total,p.paid+(p.credited||0),pDueOf(p)])],
+  payments:[['ref','date','type','party','method','amount'],()=>S.payments.map(p=>[p.no,p.date,p.type,((p.type==='in'?cust(p.partyId):supp(p.partyId))||{}).name,p.method,p.amount])],
+  expenses:[['date','category','note','method','amount','voided'],()=>S.expenses.map(x=>[x.date,(acct(x.acc)||{}).name,x.note,x.method,x.amount,x.voided?'yes':''])]}[t];
+  download(t+'.csv',csv([m[0],...m[1]()]))};
+
+/* ---------- Search, shell, router ---------- */
+$('#gsearch').addEventListener('input',e=>{
+  const q=e.target.value.trim().toLowerCase(),box=$('#gres');if(q.length<2){box.hidden=true;return}
+  const res=[];
+  S.products.filter(p=>(p.name+p.sku+p.barcode).toLowerCase().includes(q)).slice(0,4).forEach(p=>res.push(['Product',p.name,'gs','p',p.id]));
+  S.customers.filter(c=>(c.name+c.phone+c.company).toLowerCase().includes(q)).slice(0,3).forEach(c=>res.push(['Customer',c.name,'gs','c',c.id]));
+  S.suppliers.filter(c=>(c.name+c.phone+c.company).toLowerCase().includes(q)).slice(0,3).forEach(c=>res.push(['Supplier',c.name,'gs','s',c.id]));
+  S.sales.filter(s=>s.no.toLowerCase().includes(q)).slice(-3).forEach(s=>res.push(['Invoice',s.no+' · '+money(s.total),'gs','i',s.id]));
+  S.purchases.filter(s=>s.no.toLowerCase().includes(q)).slice(-2).forEach(s=>res.push(['Purchase',s.no+' · '+money(s.total),'gs','u',s.id]));
+  box.innerHTML=res.length?res.map(r=>`<button data-act="gs" data-t="${r[3]}" data-id="${r[4]}"><small>${r[0]}</small><span>${esc(r[1])}</span></button>`).join(''):'<div style="padding:12px 14px;color:var(--mut)">No results</div>';box.hidden=false;
+});
+ACT.gs=(e,d)=>{$('#gres').hidden=true;$('#gsearch').value='';const id=+d.id;
+  if(d.t==='p'){UI.products=UI.products||{q:'',cat:'',show:'all'};UI.products.q=prod(id).name;UI.products.show='all';go('products');render()}
+  else if(d.t==='c'||d.t==='s'){go(d.t==='c'?'customers':'suppliers');render();ACT.stmt(null,{k:d.t,id})}
+  else if(d.t==='i'){go('sales');render();ACT.sview(null,{id})}
+  else{go('purchases');render();ACT.pview(null,{id})}};
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.gs'))$('#gres').hidden=true;
+  const el=e.target.closest('[data-act]');if(el&&ACT[el.dataset.act]){e.preventDefault();ACT[el.dataset.act](el,el.dataset)}
+  if(e.target.closest('#nav a,#bottom a'))$('#side').classList.remove('open');
+});
+document.addEventListener('change',e=>{const el=e.target;if(el.dataset&&el.dataset.chg&&CHG[el.dataset.chg])CHG[el.dataset.chg](el)});
+document.addEventListener('input',e=>{
+  const el=e.target;
+  if(el.dataset.inp){const u=UI[el.dataset.inp];u[el.name]=el.type==='checkbox'?el.checked:el.value;const fn={products:'products',inv:'inv',sales:'sales',pur:'pur',cus:'cus',sup:'sup',exp:'exp',acc:'acc',rep:'rep'}[el.dataset.inp];
+    if(el.name==='id'||el.name==='code'){render()}else if(el.dataset.inp==='inv'&&el.name!=='q'){TBL.inv()}else TBL[fn]()}
+  if(el.dataset.inp2==='pcalc')ACT.pcalc();
+});
+$('#burger').onclick=()=>$('#side').classList.toggle('open');
+$('#theme').onclick=()=>{const d=document.documentElement;const dark=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',dark?'light':'dark')};
+if(matchMedia('(prefers-color-scheme:dark)').matches)document.documentElement.setAttribute('data-theme','dark');
+const go=p=>{location.hash='#/'+p};
+function refresh(){render()}
+function render(){
+  const p=(location.hash.replace('#/','')||'dashboard');const pg=PAGES[p]?p:'dashboard';
+  $('#nav').innerHTML=NAV.map(n=>`<a href="#/${n[0]}" class="${n[0]===pg?'on':''}"><span>${n[2]}</span>${n[1]}</a>`).join('');
+  $('#bottom').innerHTML=['dashboard','pos','products','sales'].map(k=>{const n=NAV.find(x=>x[0]===k);return `<a href="#/${k}" class="${k===pg?'on':''}"><span>${n[2]}</span>${n[1]}</a>`}).join('')+`<a href="#" data-act="more"><span>☰</span>More</a>`;
+  $('#title').textContent=NAV.find(n=>n[0]===pg)[1];
+  $('#side').classList.remove('open');
+  $('#gres').hidden=true;$('#gsearch').value='';
+  PAGES[pg]();
+  window.scrollTo(0,0);
+}
+ACT.more=()=>$('#side').classList.add('open');
+window.addEventListener('hashchange',render);
+render();
+if(!persist)toast('Browser storage is unavailable. Data will not be saved.','err');
+</script>
+</body>
+</html>

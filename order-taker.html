@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BE SHAD TRADER — Order Taker</title>
+<style>
+:root{--bg:#F3F5F8;--sf:#fff;--sf2:#EDF1F5;--ink:#0E2238;--mut:#5B6B7F;--line:#DCE2EA;--br:#0E3A5F;--brink:#fff;--ac:#F2A413;--acink:#2A1C00;--gd:#1B8F5F;--bd:#C2453A;--sh:0 1px 2px rgba(14,34,56,.06),0 6px 20px rgba(14,34,56,.08)}
+[data-theme=dark]{--bg:#0A1522;--sf:#101F31;--sf2:#15283D;--ink:#EAF0F7;--mut:#9FB0C4;--line:#22364D;--br:#5BA3DB;--brink:#06121F;--gd:#3FC68C;--bd:#E5776C;--sh:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.3)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ac);outline-offset:1px}
+#app{max-width:720px;margin:0 auto;min-height:100vh;padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+header{position:sticky;top:0;z-index:20;background:var(--br);color:var(--brink);padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;display:flex;align-items:center;gap:10px}
+header b{font-size:17px;letter-spacing:.02em}
+header small{display:block;font-size:12px;opacity:.85}
+header button{margin-left:auto;background:rgba(255,255,255,.15);border:0;color:inherit;border-radius:10px;width:38px;height:38px;cursor:pointer}
+#view{padding:14px 14px 0}
+.b{border:0;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;background:var(--sf2);color:var(--ink)}
+.b-p{background:var(--br);color:var(--brink)}
+.b-a{background:var(--ac);color:var(--acink)}
+.b-d{background:color-mix(in srgb,var(--bd) 15%,transparent);color:var(--bd)}
+.b-s{padding:7px 12px;font-size:14px;border-radius:9px}
+.in{width:100%;border:1px solid var(--line);background:var(--sf);border-radius:12px;padding:12px 14px}
+.card{background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.card h3{margin:0 0 8px;font-size:16px}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.mut{color:var(--mut);font-size:14px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.chips button{flex:none;border:1px solid var(--line);background:var(--sf);border-radius:99px;padding:6px 14px;font-weight:600;font-size:14px;cursor:pointer}
+.chips button[aria-pressed=true]{background:var(--br);color:var(--brink);border-color:var(--br)}
+.pi{display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+.pi.on{border-color:var(--br);box-shadow:var(--sh)}
+.pi .t{min-width:0}
+.pi b{display:block;line-height:1.25}
+.pi .pr{font-weight:800;color:var(--br)}
+.pi .warn{color:var(--bd);font-size:13px;font-weight:600}
+.qty{display:flex;align-items:center;gap:6px;flex:none}
+.qty button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--sf2);font-size:20px;font-weight:700;cursor:pointer}
+.qty input{width:56px;height:40px;text-align:center;border:1px solid var(--line);border-radius:10px;background:var(--sf)}
+.cl{display:flex;flex-direction:column;gap:6px}
+.cust{display:block;width:100%;text-align:left;background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;cursor:pointer}
+.cust:hover{border-color:var(--br)}
+.bdg{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12.5px;font-weight:700;background:var(--sf2);color:var(--mut)}
+.bdg.ok{background:color-mix(in srgb,var(--gd) 16%,transparent);color:var(--gd)}
+.bdg.bad{background:color-mix(in srgb,var(--bd) 16%,transparent);color:var(--bd)}
+.bdg.wn{background:color-mix(in srgb,var(--ac) 25%,transparent);color:#8a5a00}
+#bar{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom,0px));z-index:25;padding:8px 14px}
+#bar>div{max-width:720px;margin:0 auto;background:var(--ac);color:var(--acink);border-radius:14px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:var(--sh);cursor:pointer;border:0;width:100%}
+#bar b{font-size:17px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--sf);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav a{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 0;font-size:12px;font-weight:700;color:var(--mut);text-decoration:none}
+nav a.on{color:var(--br)}
+nav span{font-size:20px}
+dialog{border:1px solid var(--line);border-radius:18px;background:var(--sf);color:var(--ink);padding:0;width:min(560px,calc(100% - 20px));max-height:90vh;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+dialog::backdrop{background:rgba(6,14,24,.55)}
+.mh{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.mh h3{margin:0;font-size:18px}
+#mb{padding:16px 18px;overflow-y:auto;max-height:62vh}
+.mf{display:flex;gap:10px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--line)}
+.line{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:15px}
+.tot{display:flex;justify-content:space-between;font-size:20px;font-weight:800;margin-top:10px}
+#toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(130px + env(safe-area-inset-bottom,0px));z-index:100;display:flex;flex-direction:column;gap:8px;align-items:center;width:calc(100% - 28px)}
+.toast{background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:12px;font-weight:600;box-shadow:var(--sh)}
+.toast.err{background:var(--bd);color:#fff}
+.empty{padding:30px 16px;text-align:center;color:var(--mut);border:1px dashed var(--line);border-radius:14px;background:var(--sf)}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:14px;font-weight:600;color:var(--mut);margin-bottom:12px}
+textarea.in{min-height:80px;resize:vertical}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header><div><b id="hb">Order Taker</b><small id="hs"></small></div><button id="theme" aria-label="Switch theme">◐</button></header>
+  <main id="view"></main>
+</div>
+<div id="bar" hidden></div>
+<nav id="nav"></nav>
+<dialog id="modal"><div class="mh"><h3 id="mt"></h3><button class="b b-s" id="mx" aria-label="Close">✕</button></div><div id="mb"></div><div class="mf"><button class="b" id="mc">Close</button><button class="b b-p" id="mok">OK</button></div></dialog>
+<div id="toasts" aria-live="polite"></div>
+
+<script>
+'use strict';
+const $=(s,r)=>(r||document).querySelector(s);
+const $$=(s,r)=>Array.from((r||document).querySelectorAll(s));
+const KEY='bst_ot_v1';
+let mem=null,persist=true;
+const store={get(){try{return localStorage.getItem(KEY)}catch(e){persist=false;return mem}},set(v){try{localStorage.setItem(KEY,v)}catch(e){persist=false;mem=v}}};
+const fresh=()=>({dev:Math.random().toString(36).slice(2,5).toUpperCase(),seq:1,taker:'',catalog:null,orders:[],draft:{cid:null,level:'retail',items:{}}});
+let S;try{const r=store.get();S=r?Object.assign(fresh(),JSON.parse(r)):fresh()}catch(e){S=fresh()}
+const save=()=>store.set(JSON.stringify(S));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const r2=n=>Math.round((Number(n)||0)*100)/100;
+const cur=()=>(S.catalog&&S.catalog.business&&S.catalog.business.currency)||'Rs';
+const money=n=>cur()+' '+r2(n).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});
+const todayStr=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
+function toast(m,t){const d=document.createElement('div');d.className='toast '+(t||'');d.textContent=m;$('#toasts').appendChild(d);setTimeout(()=>d.remove(),3500)}
+let modalOK=null;
+function modal(title,body,ok,okText){$('#mt').textContent=title;$('#mb').innerHTML=body;modalOK=ok;$('#mok').style.display=ok?'':'none';$('#mok').textContent=okText||'OK';$('#mc').textContent=ok?'Cancel':'Close';if(!$('#modal').open)$('#modal').showModal()}
+const closeModal=()=>{if($('#modal').open)$('#modal').close()};
+$('#mok').onclick=()=>{if(modalOK&&modalOK()===false)return;closeModal()};
+$('#mc').onclick=closeModal;$('#mx').onclick=closeModal;
+function download(name,text,mime){const b=new Blob([text],{type:mime||'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+const pickFile=(accept,cb)=>{const i=document.createElement('input');i.type='file';i.accept=accept;i.onchange=()=>{const f=i.files[0];if(!f)return;const r=new FileReader();r.onload=()=>cb(String(r.result));r.readAsText(f)};i.click()};
+function copyText(t){
+  const fallback=()=>modal('Copy this text',`<textarea class="in" id="ct" rows="8" readonly>${esc(t)}</textarea>`,null);
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(()=>toast('Copied'),fallback);else fallback();
+}
+
+/* ---- data helpers ---- */
+const cat=()=>S.catalog;
+const prodOf=id=>cat().products.find(p=>p.id===id);
+const custOf=id=>cat().customers.find(c=>c.id===id);
+const priceOf=(p,lv)=>lv==='wholesale'&&p.wholesale?p.wholesale:p.price;
+function draftLines(){const d=S.draft;return Object.entries(d.items).filter(([,q])=>q>0).map(([id,q])=>{const p=prodOf(+id);return p?{pid:p.id,name:p.name,unit:p.unit,qty:q,price:priceOf(p,d.level)}:null}).filter(Boolean)}
+const draftTotal=()=>r2(draftLines().reduce((a,l)=>a+l.qty*l.price,0));
+function orderTotal(o){return r2(o.items.reduce((a,l)=>a+l.qty*l.price,0))}
+function encode(obj){const bytes=new TextEncoder().encode(JSON.stringify(obj));let s='';bytes.forEach(b=>s+=String.fromCharCode(b));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+const orderCode=o=>'BSTO1:'+encode({v:1,no:o.no,d:o.date,cid:o.cid,cn:o.cn,lv:o.level,it:o.items.map(l=>[l.pid,l.qty,l.price,l.name]),nt:o.note,tk:S.taker});
+function orderText(o){
+  return `*Order ${o.no}*\nCustomer: ${o.cn}\nDate: ${o.date}\n`+o.items.map(l=>`• ${l.name} × ${l.qty} = ${money(l.qty*l.price)}`).join('\n')+`\nTotal: ${money(orderTotal(o))}`+(o.note?`\nNote: ${o.note}`:'')+`\n\n${orderCode(o)}`;
+}
+function statusOf(o){
+  const st=cat()&&cat().status&&cat().status[o.no];
+  if(st==='Invoiced')return['Approved','ok'];
+  if(st==='Rejected')return['Rejected','bad'];
+  if(st==='Pending')return['Received by office','wn'];
+  return o.sent?['Sent — waiting','wn']:['Not sent yet','bad'];
+}
+function markSent(list){list.forEach(o=>o.sent=true);save()}
+function share(list){
+  const text=list.map(orderText).join('\n\n———\n\n');
+  markSent(list);render();
+  window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
+}
+
+/* ---- views ---- */
+const NAV=[['new','New order','➕'],['orders','My orders','🧾'],['customers','Customers','👥'],['sync','Sync','🔄']];
+let page='new',pq='',pcat='',cq='';
+const V=()=>$('#view');
+function render(){
+  $('#hb').textContent=(cat()&&cat().business&&cat().business.name)||'BE SHAD TRADER';
+  $('#hs').textContent=S.taker?'Order taker: '+S.taker:'Order Taker';
+  $('#nav').innerHTML=NAV.map(n=>`<a href="#${n[0]}" class="${n[0]===page?'on':''}"><span>${n[2]}</span>${n[1]}</a>`).join('');
+  $('#bar').hidden=true;V().onclick=null;
+  if(!S.taker||!cat())return viewSetup();
+  ({new:viewNew,orders:viewOrders,customers:viewCustomers,sync:viewSync})[page]();
+  window.scrollTo(0,0);
+}
+function viewSetup(){
+  V().innerHTML=`<div class="card"><h3>Welcome</h3><p class="mut" style="margin-top:0">Enter your name and load the price list your office gave you. You only need to do this once, and again whenever the office sends a new list.</p>
+  <label class="f">Your name<input class="in" id="tk" value="${esc(S.taker)}" placeholder="e.g. Ali"></label>
+  <button class="b b-a" style="width:100%" id="loadcat">Choose price list file (catalog.json)</button></div>${cat()?'':'<p class="mut">No price list loaded yet.</p>'}`;
+  $('#loadcat').onclick=()=>{const n=$('#tk').value.trim();if(!n){toast('Enter your name first','err');return}S.taker=n;save();importCatalog()};
+}
+function importCatalog(){
+  pickFile('.json,application/json',t=>{
+    try{const c=JSON.parse(t);if(!c||!Array.isArray(c.products)||!Array.isArray(c.customers))throw new Error('This is not a catalog file');S.catalog=c;S.draft={cid:null,level:S.draft.level,items:{}};save();toast('Price list loaded: '+c.products.length+' products, '+c.customers.length+' customers');render()}
+    catch(e){toast(e.message,'err')}
+  });
+}
+function viewNew(){
+  const d=S.draft;
+  if(!d.cid){
+    V().innerHTML=`<div class="card"><h3>1. Choose customer</h3><input class="in" id="cq" placeholder="Search customer" autocomplete="off" value="${esc(cq)}"></div><div id="clist"></div>`;
+    const draw=()=>{const q=cq.toLowerCase();const l=cat().customers.filter(c=>!q||(c.name+' '+c.city+' '+c.area+' '+c.phone).toLowerCase().includes(q)).slice(0,80);
+      $('#clist').innerHTML=l.length?l.map(c=>`<button class="cust" data-c="${c.id}"><b>${esc(c.name)}</b><div class="mut">${esc([c.area,c.city,c.phone].filter(Boolean).join(' · '))}</div></button>`).join(''):'<div class="empty">No customers found.</div>'};
+    $('#cq').oninput=e=>{cq=e.target.value;draw()};draw();
+    $('#clist').onclick=e=>{const b=e.target.closest('[data-c]');if(!b)return;d.cid=+b.dataset.c;save();render()};
+    return;
+  }
+  const c=custOf(d.cid);if(!c){d.cid=null;save();return render()}
+  const cats=[...new Set(cat().products.map(p=>p.category))].sort();
+  V().innerHTML=`<div class="card"><div class="row"><div><b>${esc(c.name)}</b><div class="mut">${esc([c.area,c.city].filter(Boolean).join(' · '))}</div></div><button class="b b-s" id="chg">Change</button></div>
+  <div class="row" style="margin-top:10px"><span class="mut">Price</span><select class="in" id="lv" style="width:auto"><option value="retail">Retail</option><option value="wholesale">Wholesale</option></select></div></div>
+  <input class="in" id="pq" placeholder="Search products" autocomplete="off" value="${esc(pq)}" style="margin-bottom:10px">
+  <div class="chips" id="pc"></div><div id="pl"></div>`;
+  $('#lv').value=d.level;
+  $('#lv').onchange=e=>{d.level=e.target.value;save();drawList();drawBar()};
+  $('#chg').onclick=()=>{if(draftLines().length&&!confirm('Change customer? The items in this order stay.'))return;d.cid=null;save();render()};
+  $('#pq').oninput=e=>{pq=e.target.value;drawList()};
+  const drawChips=()=>{$('#pc').innerHTML=`<button data-k="" aria-pressed="${!pcat}">All</button>`+cats.map(k=>`<button data-k="${esc(k)}" aria-pressed="${pcat===k}">${esc(k)}</button>`).join('')};
+  $('#pc').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;pcat=b.dataset.k;drawChips();drawList()};
+  drawChips();drawList();drawBar();
+  $('#pl').onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;const id=+b.dataset.id;setQty(id,(d.items[id]||0)+(b.dataset.a==='inc'?1:-1))};
+  $('#pl').onchange=e=>{if(e.target.dataset.q)setQty(+e.target.dataset.q,+e.target.value||0)};
+}
+function drawList(){
+  const d=S.draft,q=pq.trim().toLowerCase();
+  const l=cat().products.filter(p=>(!pcat||p.category===pcat)&&(!q||(p.name+' '+p.sku).toLowerCase().includes(q))).slice(0,150);
+  $('#pl').innerHTML=l.length?l.map(p=>{const n=d.items[p.id]||0;return `<div class="pi ${n?'on':''}" id="pi${p.id}"><div class="t"><b>${esc(p.name)}</b><span class="mut">${esc(p.unit)}${p.stock!=null?' · '+p.stock+' in stock':''}</span> <span class="pr">${money(priceOf(p,d.level))}</span><div class="warn" id="w${p.id}">${warnText(p,n)}</div></div><div class="qty"><button data-a="dec" data-id="${p.id}" aria-label="Less">−</button><input type="number" min="0" step="any" inputmode="decimal" value="${n||''}" placeholder="0" data-q="${p.id}" id="q${p.id}" aria-label="Quantity"><button data-a="inc" data-id="${p.id}" aria-label="More">+</button></div></div>`}).join(''):'<div class="empty">No products match.</div>';
+}
+const warnText=(p,n)=>(p.stock!=null&&n>p.stock)?'More than available stock':'';
+function setQty(id,q){
+  const d=S.draft,p=prodOf(id);q=Math.max(0,Math.round(q*1000)/1000);
+  if(q>0)d.items[id]=q;else delete d.items[id];save();
+  const i=$('#q'+id);if(i)i.value=q||'';
+  const row=$('#pi'+id);if(row)row.classList.toggle('on',q>0);
+  const w=$('#w'+id);if(w)w.textContent=warnText(p,q);
+  drawBar();
+}
+function drawBar(){
+  const bar=$('#bar'),l=draftLines();
+  if(page!=='new'||!S.draft.cid||!l.length){bar.hidden=true;return}
+  bar.hidden=false;bar.innerHTML=`<div id="review" role="button" tabindex="0"><span>${l.length} item${l.length>1?'s':''}</span><b>${money(draftTotal())}</b><span>Review →</span></div>`;
+  $('#review').onclick=review;$('#review').onkeydown=e=>{if(e.key==='Enter')review()};
+}
+function review(){
+  const l=draftLines(),c=custOf(S.draft.cid);
+  modal('Review order',`<p style="margin-top:0"><b>${esc(c.name)}</b> · ${S.draft.level==='wholesale'?'Wholesale':'Retail'} prices</p>${l.map(x=>`<div class="line"><span>${esc(x.name)} × ${x.qty}</span><b>${money(x.qty*x.price)}</b></div>`).join('')}<div class="tot"><span>Total</span><span>${money(draftTotal())}</span></div><label class="f" style="margin-top:14px">Note (optional)<textarea class="in" id="note" placeholder="Delivery time, special request…"></textarea></label>`,()=>{
+    const items=draftLines();if(!items.length)return false;
+    const no=(S.taker.replace(/[^A-Za-z0-9]/g,'').toUpperCase().slice(0,4)||'OT')+'-'+S.dev+'-'+String(S.seq++).padStart(4,'0');
+    S.orders.push({id:Date.now(),no,date:todayStr(),cid:c.id,cn:c.name,level:S.draft.level,items,note:$('#note').value.trim(),sent:false});
+    S.draft={cid:null,level:S.draft.level,items:{}};pq='';pcat='';cq='';save();
+    toast('Order '+no+' saved. Send it to the office from My orders.');page='orders';location.hash='#orders';render();
+  },'Save order');
+}
+function viewOrders(){
+  const l=[...S.orders].reverse();
+  const unsent=S.orders.filter(o=>!o.sent);
+  V().innerHTML=(unsent.length?`<div class="card"><div class="row"><div><b>${unsent.length} order${unsent.length>1?'s':''} not sent</b><div class="mut">Send them to the office on WhatsApp</div></div><button class="b b-a" id="sall">Send all</button></div></div>`:'')+
+  (l.length?l.map(o=>{const [t,k]=statusOf(o);return `<div class="card"><div class="row"><div><b>${esc(o.cn)}</b><div class="mut">${esc(o.no)} · ${o.date}</div></div><div style="text-align:right"><b>${money(orderTotal(o))}</b><div><span class="bdg ${k}">${t}</span></div></div></div><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="b b-s" data-v="${o.id}">View</button><button class="b b-s b-p" data-s="${o.id}">WhatsApp</button><button class="b b-s" data-cp="${o.id}">Copy</button>${!o.sent?`<button class="b b-s b-d" data-x="${o.id}">Delete</button>`:''}</div></div>`}).join(''):'<div class="empty">No orders yet. Tap “New order” to take one.</div>');
+  const s=$('#sall');if(s)s.onclick=()=>share(unsent);
+  V().onclick=e=>{const b=e.target.closest('button');if(!b)return;const g=k=>b.dataset[k]&&S.orders.find(o=>o.id===+b.dataset[k]);
+    let o;
+    if(o=g('v'))modal('Order '+o.no,`<p style="margin-top:0"><b>${esc(o.cn)}</b> · ${o.date}</p>${o.items.map(x=>`<div class="line"><span>${esc(x.name)} × ${x.qty}</span><b>${money(x.qty*x.price)}</b></div>`).join('')}<div class="tot"><span>Total</span><span>${money(orderTotal(o))}</span></div>${o.note?`<p class="mut">Note: ${esc(o.note)}</p>`:''}`,null);
+    else if(o=g('s'))share([o]);
+    else if(o=g('cp')){markSent([o]);copyText(orderText(o));render()}
+    else if(o=g('x')){if(confirm('Delete this order?')){S.orders=S.orders.filter(x=>x.id!==o.id);save();render()}}
+  };
+}
+function viewCustomers(){
+  V().innerHTML=`<div class="card"><input class="in" id="cq2" placeholder="Search customers" autocomplete="off"></div><div id="cl2"></div>`;
+  const draw=()=>{const q=($('#cq2').value||'').toLowerCase();const l=cat().customers.filter(c=>!q||(c.name+' '+c.city+' '+c.area+' '+c.phone).toLowerCase().includes(q)).slice(0,100);
+    $('#cl2').innerHTML=l.length?l.map(c=>`<div class="card"><div class="row"><div><b>${esc(c.name)}</b><div class="mut">${esc([c.area,c.city].filter(Boolean).join(' · '))}</div>${c.phone?`<a href="tel:${esc(c.phone)}" class="mut">${esc(c.phone)}</a>`:''}</div><button class="b b-s b-p" data-n="${c.id}">New order</button></div></div>`).join(''):'<div class="empty">No customers found.</div>'};
+  $('#cq2').oninput=draw;draw();
+  $('#cl2').onclick=e=>{const b=e.target.closest('[data-n]');if(!b)return;S.draft.cid=+b.dataset.n;save();page='new';location.hash='#new';render()};
+}
+function viewSync(){
+  const c=cat(),unsent=S.orders.filter(o=>!o.sent).length;
+  V().innerHTML=`<div class="card"><h3>Price list</h3><p class="mut" style="margin-top:0">${c.products.length} products · ${c.customers.length} customers<br>Updated by office: ${esc((c.exportedAt||'').slice(0,16).replace('T',' '))}</p><button class="b b-p" id="ic">Load new price list</button><p class="mut" style="margin-bottom:0">Loading a new list also updates the status of your orders. Orders you already saved are kept.</p></div>
+  <div class="card"><h3>Send orders to the office</h3><p class="mut" style="margin-top:0">${unsent} not sent · ${S.orders.length} total</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="b b-a" id="sa">Send unsent on WhatsApp</button><button class="b" id="ef">Save all as file</button></div></div>
+  <div class="card"><h3>Your name</h3><input class="in" id="tk2" value="${esc(S.taker)}"><button class="b" style="margin-top:10px" id="stk">Save name</button></div>
+  <div class="card"><h3>This phone</h3><p class="mut" style="margin-top:0">${persist?'Orders are stored on this phone. Send them to the office the same day.':'<b>Storage is unavailable. Orders will be lost when you close this page.</b>'}</p><button class="b b-d" id="wp">Erase everything on this phone</button></div>`;
+  $('#ic').onclick=importCatalog;
+  $('#sa').onclick=()=>{const l=S.orders.filter(o=>!o.sent);if(!l.length){toast('Nothing to send','err');return}share(l)};
+  $('#ef').onclick=()=>{if(!S.orders.length){toast('No orders yet','err');return}download('orders-'+todayStr()+'.txt',S.orders.map(orderText).join('\n\n———\n\n'))};
+  $('#stk').onclick=()=>{const n=$('#tk2').value.trim();if(!n){toast('Enter a name','err');return}S.taker=n;save();toast('Saved');render()};
+  $('#wp').onclick=()=>{if(prompt('Type ERASE to delete all orders and the price list from this phone')==='ERASE'){S=fresh();save();page='new';location.hash='#new';render()}};
+}
+$('#theme').onclick=()=>{const d=document.documentElement;d.setAttribute('data-theme',d.getAttribute('data-theme')==='dark'?'light':'dark')};
+if(matchMedia('(prefers-color-scheme:dark)').matches)document.documentElement.setAttribute('data-theme','dark');
+window.addEventListener('hashchange',()=>{const p=location.hash.slice(1);if(NAV.some(n=>n[0]===p)&&p!==page){page=p;render()}});
+{const p=location.hash.slice(1);if(NAV.some(n=>n[0]===p))page=p}
+render();
+if(!persist)toast('Browser storage is unavailable. Nothing will be saved.','err');
+</script>
+</body>
+</html>

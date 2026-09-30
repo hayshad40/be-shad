@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BE SHAD TRADER — Distribution, Inventory & Accounting Software</title>
+<meta name="description" content="Manage sales, purchases, inventory, customers, payments and accounts from one platform built for distributors, wholesalers and retailers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#F6F7F9; --surface:#FFFFFF; --surface2:#EEF1F5; --ink:#0E2238; --muted:#56667A; --line:#DDE3EA;
+  --brand:#0E3A5F; --brand-ink:#FFFFFF; --accent:#F2A413; --accent-ink:#2A1C00; --good:#1B8F5F; --bad:#C2453A;
+  --shadow:0 1px 2px rgba(14,34,56,.06),0 8px 24px rgba(14,34,56,.06);
+  --hero:#0E2A47; --hero-ink:#F1F5FA; --hero-muted:#A9BBD0;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A1522; --surface:#101F31; --surface2:#15283D; --ink:#EAF0F7; --muted:#9FB0C4; --line:#22364D;
+    --brand:#5BA3DB; --brand-ink:#06121F; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+    --hero:#0C1D31; --good:#3FC68C; --bad:#E5776C;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A1522; --surface:#101F31; --surface2:#15283D; --ink:#EAF0F7; --muted:#9FB0C4; --line:#22364D;
+  --brand:#5BA3DB; --brand-ink:#06121F; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+  --hero:#0C1D31; --good:#3FC68C; --bad:#E5776C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 76px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+img,svg{max-width:100%}
+a{color:inherit}
+h1,h2,h3{line-height:1.12;letter-spacing:-.02em;margin:0}
+p{margin:0}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.wrap{width:min(1180px,100% - 40px);margin-inline:auto}
+section{padding:88px 0}
+.sec-head{max-width:640px;margin-bottom:44px}
+.sec-head h2{font-size:clamp(28px,4vw,40px);font-weight:800}
+.sec-head p{color:var(--muted);margin-top:14px;font-size:18px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:10px;padding:13px 22px;font:inherit;font-weight:700;font-size:16px;cursor:pointer;text-decoration:none;transition:transform .15s,box-shadow .15s,background .15s}
+.btn:active{transform:translateY(1px)}
+.btn-accent{background:var(--accent);color:var(--accent-ink)}
+.btn-accent:hover{box-shadow:0 6px 18px rgba(242,164,19,.4)}
+.btn-brand{background:var(--brand);color:var(--brand-ink)}
+.btn-ghost{background:transparent;color:inherit;border:1.5px solid currentColor;opacity:.92}
+.btn-sm{padding:9px 16px;font-size:15px}
+
+/* header */
+header.top{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.top .wrap{display:flex;align-items:center;gap:28px;height:68px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;letter-spacing:.02em;font-size:17px}
+.logo small{display:block;font-size:10.5px;font-weight:600;letter-spacing:.14em;color:var(--muted);margin-top:1px}
+nav.main{display:flex;gap:4px;margin-left:12px}
+nav.main a{padding:8px 12px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;color:var(--muted)}
+nav.main a:hover{color:var(--ink);background:var(--surface2)}
+.top .right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.icon-btn{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.burger{display:none}
+@media(max-width:980px){
+  nav.main{display:none;position:absolute;left:0;right:0;top:100%;flex-direction:column;background:var(--surface);border-bottom:1px solid var(--line);padding:10px 20px 16px;margin:0}
+  nav.main.open{display:flex}
+  .burger{display:grid}
+  .top .login{display:none}
+}
+
+/* hero */
+.hero{background:var(--hero);color:var(--hero-ink);padding:72px 0 88px;position:relative;overflow:hidden}
+.hero .grid{display:grid;grid-template-columns:1fr 1.15fr;gap:52px;align-items:center}
+.hero h1{font-size:clamp(34px,5vw,58px);font-weight:800}
+.hero .sub{font-size:19px;color:var(--hero-muted);margin-top:20px;max-width:520px}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.hero .ctas .btn-ghost{color:var(--hero-ink)}
+.hero .notes{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:22px;color:var(--hero-muted);font-size:14.5px;font-weight:600}
+.hero .notes span::before{content:"✓";color:var(--accent);margin-right:7px;font-weight:800}
+@media(max-width:940px){.hero .grid{grid-template-columns:1fr}}
+
+/* live dashboard mock */
+.dash{background:var(--surface);color:var(--ink);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.35);overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.dash-bar{display:flex;align-items:center;gap:6px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--surface2)}
+.dash-bar i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.dash-bar b{margin-left:10px;font-size:13px;color:var(--muted);font-weight:600}
+.dash-body{padding:18px}
+.tabs{display:inline-flex;background:var(--surface2);border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap}
+.tabs button{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:700;font-size:13px;padding:7px 12px;border-radius:8px;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:12px}
+.kpi span{display:block;font-size:12px;color:var(--muted);font-weight:600}
+.kpi strong{display:block;font-size:19px;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi em{font-style:normal;font-size:12px;font-weight:700}
+.up{color:var(--good)} .down{color:var(--bad)}
+.chart-row{display:grid;grid-template-columns:1.6fr 1fr;gap:12px}
+.panel{border:1px solid var(--line);border-radius:12px;padding:14px}
+.panel h4{margin:0 0 10px;font-size:13px;color:var(--muted);font-weight:700}
+.bars{display:flex;align-items:flex-end;gap:7px;height:140px}
+.bars div{flex:1;background:var(--brand);border-radius:5px 5px 0 0;min-height:6px;transition:height .45s cubic-bezier(.2,.8,.2,1);opacity:.9}
+.bars div:nth-child(even){background:color-mix(in srgb,var(--brand) 55%,var(--accent))}
+.toplist{list-style:none;margin:0;padding:0;font-size:13px}
+.toplist li{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--line)}
+.toplist li:last-child{border:0}
+.toplist b{font-variant-numeric:tabular-nums}
+@media(max-width:620px){.kpis{grid-template-columns:repeat(2,1fr)}.chart-row{grid-template-columns:1fr}}
+
+/* trust strip */
+.strip{padding:28px 0;border-bottom:1px solid var(--line);background:var(--surface)}
+.strip .wrap{display:flex;flex-wrap:wrap;gap:10px 28px;align-items:center;justify-content:center;color:var(--muted);font-weight:700;font-size:15px}
+.strip .lbl{color:var(--ink)}
+
+/* features */
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.feat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px}
+.feat .ic{width:44px;height:44px;border-radius:11px;background:var(--surface2);display:grid;place-items:center;font-size:22px;margin-bottom:16px}
+.feat h3{font-size:19px;font-weight:700;margin-bottom:8px}
+.feat p{color:var(--muted);font-size:15.5px}
+.feat.wide{grid-column:span 2}
+@media(max-width:620px){.feat.wide{grid-column:auto}}
+
+/* workflow */
+.flow{background:var(--surface);border-block:1px solid var(--line)}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:0;counter-reset:s;position:relative}
+.step{padding:0 14px 0 0;position:relative}
+.step::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--brand);color:var(--brand-ink);font-weight:800;font-size:14px;position:relative;z-index:1}
+.step::after{content:"";position:absolute;left:34px;right:0;top:16px;height:2px;background:var(--line)}
+.step:last-child::after{display:none}
+.step h3{font-size:17px;margin:14px 0 6px}
+.step p{color:var(--muted);font-size:14.5px}
+@media(max-width:860px){
+  .steps{grid-template-columns:1fr;gap:22px}
+  .step{padding:0 0 0 52px}
+  .step::before{position:absolute;left:0;top:0}
+  .step::after{left:16px;right:auto;top:34px;bottom:-22px;width:2px;height:auto}
+  .step h3{margin-top:0}
+}
+.flow-extra{margin-top:36px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--surface2);border:1px solid var(--line);border-radius:99px;padding:7px 14px;font-size:14px;font-weight:600;color:var(--muted)}
+
+/* roles */
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.role{border-radius:16px;padding:26px;border:1px solid var(--line);background:var(--surface)}
+.role h3{font-size:20px;margin-bottom:4px}
+.role .who{color:var(--muted);font-size:14.5px;margin-bottom:18px}
+.role ul{list-style:none;margin:0;padding:0;display:grid;gap:9px;font-size:15.5px}
+.role li{display:flex;gap:10px;align-items:flex-start}
+.role li::before{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;margin-top:2px}
+.role.can li::before{content:"✓";background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}
+.role.cannot li::before{content:"✕";background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)}
+.role.cannot{border-color:color-mix(in srgb,var(--bad) 35%,var(--line))}
+.callout{margin-top:20px;padding:18px 22px;border-radius:14px;background:var(--surface2);font-size:15.5px;color:var(--muted)}
+.callout b{color:var(--ink)}
+@media(max-width:760px){.roles{grid-template-columns:1fr}}
+
+/* modules tabs */
+.mod{display:grid;grid-template-columns:260px 1fr;gap:28px;align-items:start}
+.mod-nav{display:grid;gap:6px}
+.mod-nav button{text-align:left;border:1px solid transparent;background:transparent;font:inherit;font-weight:700;font-size:16px;color:var(--muted);padding:13px 16px;border-radius:12px;cursor:pointer}
+.mod-nav button[aria-selected="true"]{background:var(--surface);border-color:var(--line);color:var(--ink);box-shadow:var(--shadow)}
+.mod-panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:28px;min-height:280px}
+.mod-panel h3{font-size:24px;font-weight:800;margin-bottom:10px}
+.mod-panel > p{color:var(--muted);font-size:16.5px;max-width:560px}
+.mod-panel ul{margin:18px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px 22px}
+.mod-panel li{font-size:15.5px;display:flex;gap:9px}
+.mod-panel li::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-top:9px}
+@media(max-width:820px){
+  .mod{grid-template-columns:1fr}
+  .mod-nav{display:flex;overflow-x:auto;gap:6px;padding-bottom:4px}
+  .mod-nav button{white-space:nowrap}
+}
+
+/* industries */
+.inds{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.ind{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s,transform .15s}
+.ind:hover{border-color:var(--brand);transform:translateY(-2px)}
+.ind .e{font-size:28px}
+.ind h3{font-size:18px}
+.ind p{color:var(--muted);font-size:14.5px;flex:1}
+.ind a{font-weight:700;font-size:14.5px;color:var(--brand);text-decoration:none;margin-top:4px}
+.ind a:hover{text-decoration:underline}
+
+/* saas / security band */
+.band{background:var(--hero);color:var(--hero-ink)}
+.band .sec-head p{color:var(--hero-muted)}
+.band-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.band-card{border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:22px;background:rgba(255,255,255,.04)}
+.band-card h3{font-size:18px;margin-bottom:8px}
+.band-card p{color:var(--hero-muted);font-size:15px}
+
+/* testimonials */
+.quotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.quote{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:16px}
+.quote p{font-size:16.5px}
+.quote footer{font-size:14px;color:var(--muted);font-weight:600}
+.sample-note{font-size:13.5px;color:var(--muted);margin-top:14px}
+
+/* pricing */
+.bill{display:flex;align-items:center;gap:14px;margin-bottom:30px;font-weight:700}
+.switch{position:relative;width:52px;height:30px;border-radius:99px;border:0;background:var(--line);cursor:pointer;padding:0}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:var(--surface);box-shadow:var(--shadow);transition:transform .2s}
+.switch[aria-checked="true"]{background:var(--brand)}
+.switch[aria-checked="true"]::after{transform:translateX(22px)}
+.save{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good);font-size:13px;padding:3px 10px;border-radius:99px}
+.plans{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:26px;display:flex;flex-direction:column}
+.plan.pop{border:2px solid var(--brand);box-shadow:var(--shadow);position:relative}
+.plan.pop .tag{position:absolute;top:-13px;left:22px;background:var(--brand);color:var(--brand-ink);font-size:12.5px;font-weight:800;padding:4px 12px;border-radius:99px}
+.plan h3{font-size:19px}
+.plan .desc{color:var(--muted);font-size:14.5px;margin:6px 0 16px;min-height:44px}
+.price{font-size:32px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.price small{font-size:14px;color:var(--muted);font-weight:600}
+.plan ul{list-style:none;margin:20px 0 24px;padding:0;display:grid;gap:9px;font-size:15px;flex:1}
+.plan li{display:flex;gap:9px}
+.plan li::before{content:"✓";color:var(--good);font-weight:800}
+.plan .btn{width:100%}
+@media(max-width:1020px){.plans{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.plans{grid-template-columns:1fr}}
+
+/* faq */
+.faq{max-width:780px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0 20px;margin-bottom:10px}
+summary{cursor:pointer;font-weight:700;font-size:17px;padding:18px 0;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-size:22px;line-height:1;color:var(--muted)}
+details[open] summary::after{content:"−"}
+details p{color:var(--muted);padding:0 0 18px;font-size:16px}
+
+/* cta */
+.cta{background:var(--brand);color:var(--brand-ink);text-align:center;padding:76px 0}
+.cta h2{font-size:clamp(28px,4vw,42px);font-weight:800}
+.cta p{margin:14px auto 28px;max-width:560px;opacity:.9;font-size:18px}
+.cta .btn-ghost{color:var(--brand-ink)}
+.cta .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* footer */
+footer.site{background:var(--hero);color:var(--hero-muted);padding:60px 0 0;font-size:15px}
+.fgrid{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:36px}
+.fgrid h4{color:var(--hero-ink);font-size:14.5px;margin:0 0 14px}
+.fgrid a{display:block;text-decoration:none;padding:4px 0}
+.fgrid a:hover{color:var(--hero-ink)}
+.fgrid .about{max-width:300px;margin-top:14px}
+.legal{margin-top:44px;border-top:1px solid rgba(255,255,255,.1);padding:22px 0 26px;display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between;align-items:center;font-size:14px}
+.presented{color:var(--hero-ink);font-weight:700;letter-spacing:.01em}
+.presented span{color:var(--accent)}
+@media(max-width:820px){.fgrid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.fgrid{grid-template-columns:1fr}}
+
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);padding:28px;max-width:440px;width:calc(100% - 40px);box-shadow:0 30px 80px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(6,14,24,.55)}
+dialog h3{font-size:22px;margin-bottom:10px}
+dialog p{color:var(--muted);margin-bottom:20px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="BE SHAD TRADER home">
+      <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="9" fill="#0E3A5F"/><rect x="9" y="8" width="5" height="20" rx="1.5" fill="#fff"/><path d="M14 8h6.5a5 5 0 0 1 0 10H14M14 18h7.5a5 5 0 0 1 0 10H14" fill="none" stroke="#fff" stroke-width="4.4" stroke-linejoin="round"/><rect x="25" y="8" width="4" height="4" rx="1" fill="#F2A413"/></svg>
+      <span>BE SHAD TRADER<small>DISTRIBUTION · INVENTORY · ACCOUNTS</small></span>
+    </a>
+    <nav class="main" id="nav" aria-label="Main">
+      <a href="#top">Home</a>
+      <a href="#features">Features</a>
+      <a href="#solutions">Solutions</a>
+      <a href="#industries">Industries</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#demo">Demo</a>
+      <a href="#faq">Resources</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="right">
+      <button class="icon-btn" id="theme" aria-label="Switch light or dark theme" title="Theme">◐</button>
+      <a class="btn btn-ghost btn-sm login" href="#" data-dialog="login">Login</a>
+      <a class="btn btn-accent btn-sm" href="#pricing">Get Started</a>
+      <button class="icon-btn burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="nav">☰</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap grid">
+    <div>
+      <h1>Run your distribution business smarter</h1>
+      <p class="sub">Manage inventory, sales, purchases, customers, payments and accounts from one platform. Your order takers, salesmen, warehouse and accounts team each see only what they should.</p>
+      <div class="ctas">
+        <a class="btn btn-accent" href="#pricing">Start Free Trial</a>
+        <a class="btn btn-ghost" href="#demo">Book a Demo</a>
+      </div>
+      <div class="notes"><span>14-day free trial</span><span>No credit card required</span><span>English &amp; Urdu</span></div>
+    </div>
+
+    <div class="dash" aria-label="Sample dashboard preview">
+      <div class="dash-bar"><i></i><i></i><i></i><b>Be Shad Trader Demo · Dashboard</b></div>
+      <div class="dash-body">
+        <div class="tabs" role="group" aria-label="Date range" id="range">
+          <button aria-pressed="true" data-r="today">Today</button>
+          <button aria-pressed="false" data-r="week">This Week</button>
+          <button aria-pressed="false" data-r="month">This Month</button>
+          <button aria-pressed="false" data-r="year">This Year</button>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><span>Sales</span><strong id="k-sales"></strong><em class="up" id="d-sales"></em></div>
+          <div class="kpi"><span>Collection</span><strong id="k-coll"></strong><em class="up" id="d-coll"></em></div>
+          <div class="kpi"><span>Expenses</span><strong id="k-exp"></strong><em class="down" id="d-exp"></em></div>
+          <div class="kpi"><span>Receivables</span><strong id="k-rec"></strong><em class="down" id="d-rec"></em></div>
+        </div>
+        <div class="chart-row">
+          <div class="panel"><h4>Sales trend</h4><div class="bars" id="bars" role="img" aria-label="Sales trend bar chart"></div></div>
+          <div class="panel"><h4>Top products</h4>
+            <ul class="toplist" id="top-list"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="strip">
+  <div class="wrap"><span class="lbl">Built for</span><span>Distributors</span><span>Wholesalers</span><span>Retail shops</span><span>Supermarkets</span><span>Pharmacies</span><span>Spare parts dealers</span><span>Small manufacturers</span></div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head"><h2>One platform for your entire business</h2><p>Stock, sales, cash and accounts stay connected, so every figure on your dashboard comes from a real transaction.</p></div>
+    <div class="features">
+      <article class="feat wide"><div class="ic">🚚</div><h3>Distribution management</h3><p>Take orders in the field, approve them, pick, pack, dispatch and collect payment. Routes, territories, van sales and customer visits are built in.</p></article>
+      <article class="feat"><div class="ic">📦</div><h3>Inventory</h3><p>Multiple warehouses, stock ledger, transfers, adjustments, batches, expiry dates and low-stock alerts.</p></article>
+      <article class="feat"><div class="ic">🧾</div><h3>Fast POS</h3><p>Barcode scanning, split payments, keyboard shortcuts and receipt printing for the counter.</p></article>
+      <article class="feat"><div class="ic">📚</div><h3>Accounting</h3><p>Sales, purchases, payments and expenses post to the ledger automatically. Trial balance, profit &amp; loss and balance sheet included.</p></article>
+      <article class="feat"><div class="ic">🤝</div><h3>Customers &amp; suppliers</h3><p>Statements, credit limits, receivables and payables aging (current, 1–30, 31–60, 61–90, 90+ days).</p></article>
+      <article class="feat"><div class="ic">📊</div><h3>Reports</h3><p>Sales by product, customer, salesman or branch. Stock valuation, dead stock, fast and slow movers. Export to PDF and Excel.</p></article>
+      <article class="feat"><div class="ic">🏢</div><h3>Multi-branch, multi-currency</h3><p>Run several branches and warehouses, each with its own users, stock and reports.</p></article>
+      <article class="feat"><div class="ic">📱</div><h3>Works on mobile</h3><p>POS, orders, salesman, order taker and delivery screens are designed for phones and tablets.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- WORKFLOW -->
+<section class="flow" id="solutions">
+  <div class="wrap">
+    <div class="sec-head"><h2>From purchase to payment, in one flow</h2><p>Each step updates stock and accounts, and records who did what.</p></div>
+    <div class="steps">
+      <div class="step"><h3>Purchase</h3><p>Order from suppliers and receive goods into a warehouse.</p></div>
+      <div class="step"><h3>Order</h3><p>Order takers and salesmen submit customer orders from their phones.</p></div>
+      <div class="step"><h3>Pick &amp; pack</h3><p>Warehouse staff pick, pack and mark orders ready.</p></div>
+      <div class="step"><h3>Deliver</h3><p>Assign drivers, track status and record proof of delivery.</p></div>
+      <div class="step"><h3>Collect</h3><p>Record payments, allocate to invoices and handle returns.</p></div>
+    </div>
+    <div class="flow-extra">
+      <span class="chip">Draft</span><span class="chip">Pending</span><span class="chip">Approved</span><span class="chip">Picking</span><span class="chip">Packed</span><span class="chip">Dispatched</span><span class="chip">Delivered</span><span class="chip">Partially delivered</span><span class="chip">Cancelled</span><span class="chip">Returned</span>
+    </div>
+  </div>
+</section>
+
+<!-- ROLES -->
+<section id="roles">
+  <div class="wrap">
+    <div class="sec-head"><h2>Every person sees only what they need</h2><p>Thirteen built-in roles with granular permissions. Restrictions are enforced on the server, not just hidden in the screen.</p></div>
+    <div class="roles">
+      <div class="role can"><h3>Order Taker can</h3><p class="who">A simple screen for the field</p>
+        <ul><li>See assigned customers</li><li>Search allowed products and check saleable stock</li><li>Create and submit orders or quotations</li><li>Track order status and view previous orders</li></ul></div>
+      <div class="role cannot"><h3>Order Taker cannot see</h3><p class="who">Blocked at the API level</p>
+        <ul><li>Profit or purchase cost</li><li>Total company sales</li><li>Stock value</li><li>Financial reports and management dashboards</li></ul></div>
+    </div>
+    <p class="callout"><b>Roles included:</b> Super Admin, Tenant Owner, Business Admin, Manager, Accountant, Sales Manager, Salesman, Order Taker, Warehouse Manager, Warehouse Staff, Cashier, Delivery Staff and Report Viewer.</p>
+  </div>
+</section>
+
+<!-- MODULE TABS -->
+<section style="background:var(--surface2)" aria-labelledby="mod-h">
+  <div class="wrap">
+    <div class="sec-head"><h2 id="mod-h">See what each module does</h2></div>
+    <div class="mod">
+      <div class="mod-nav" role="tablist" aria-label="Modules" id="modnav"></div>
+      <div class="mod-panel" id="modpanel" role="tabpanel" tabindex="0"></div>
+    </div>
+  </div>
+</section>
+
+<!-- INDUSTRIES -->
+<section id="industries">
+  <div class="wrap">
+    <div class="sec-head"><h2>Made for how your industry trades</h2><p>Start from a template for your business type, then adjust it.</p></div>
+    <div class="inds" id="inds"></div>
+  </div>
+</section>
+
+<!-- SAAS / SECURITY -->
+<section class="band" id="security">
+  <div class="wrap">
+    <div class="sec-head"><h2>Your data stays yours</h2><p>Every business is fully isolated. Security is part of the foundation, not an add-on.</p></div>
+    <div class="band-grid">
+      <div class="band-card"><h3>Tenant isolation</h3><p>Users, customers, products, sales, payments and settings never cross between businesses.</p></div>
+      <div class="band-card"><h3>Server-side permissions</h3><p>Access is checked on every API request, not only in the browser.</p></div>
+      <div class="band-card"><h3>Full audit trail</h3><p>Who created, edited, approved or changed a price, stock or payment. Financial records are reversed, not silently deleted.</p></div>
+      <div class="band-card"><h3>Backups and export</h3><p>Automatic backups, and you can export your own customers, sales, purchases and reports at any time.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo">
+  <div class="wrap">
+    <div class="sec-head"><h2>Try the demo business</h2><p>A sample distributor with products, customers, suppliers, sales, purchases and expenses. Use the date buttons on the dashboard above to see the numbers respond.</p></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <a class="btn btn-brand" href="#" data-dialog="demo">Open live demo</a>
+      <a class="btn btn-ghost" style="color:var(--ink)" href="#" data-dialog="demo">Book a Demo</a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section style="background:var(--surface);border-block:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head"><h2>What distributors want from software</h2></div>
+    <div class="quotes">
+      <blockquote class="quote" style="margin:0"><p>“I want to see who owes me money without waiting for the accountant.”</p><footer>Sample feedback · Wholesale distributor</footer></blockquote>
+      <blockquote class="quote" style="margin:0"><p>“My order takers should place orders fast, but never see my margins.”</p><footer>Sample feedback · FMCG distributor</footer></blockquote>
+      <blockquote class="quote" style="margin:0"><p>“Stock in three warehouses should match what the ledger says.”</p><footer>Sample feedback · Spare parts dealer</footer></blockquote>
+    </div>
+    <p class="sample-note">These are illustrative placeholders, to be replaced with real customer testimonials after launch.</p>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="wrap">
+    <div class="sec-head"><h2>Simple plans that grow with you</h2><p>Every plan starts with a 14-day free trial. Prices below are samples and will be editable from the Super Admin panel.</p></div>
+    <div class="bill"><span>Monthly</span><button class="switch" id="bill" role="switch" aria-checked="false" aria-label="Bill yearly"></button><span>Yearly</span><span class="save">Save 20%</span></div>
+    <div class="plans" id="plans"></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="background:var(--surface2)">
+  <div class="wrap">
+    <div class="sec-head"><h2>Questions before you start</h2></div>
+    <div class="faq">
+      <details><summary>Can I use it for a single shop and not only for distribution?</summary><p>Yes. You can use only the modules you need, such as POS and inventory for a retail shop, and switch on distribution features later.</p></details>
+      <details><summary>Can my order takers see profit or purchase cost?</summary><p>No. Order Takers only see customers, products and stock they are allowed to sell. Restricted financial data is blocked on the server.</p></details>
+      <details><summary>Does it support Urdu?</summary><p>English and Urdu are planned from day one, including right-to-left layout. More languages can be added later.</p></details>
+      <details><summary>Can I import my existing products and customers?</summary><p>Yes. Import from CSV or Excel with a guided wizard: upload, map columns, validate, preview and confirm.</p></details>
+      <details><summary>Who owns my data?</summary><p>You do. You can export customers, suppliers, products, sales, purchases, payments and reports whenever you want.</p></details>
+      <details><summary>Does it work on a phone?</summary><p>Yes. The whole system is responsive, and POS, orders, salesman, order taker and delivery screens are designed for mobile.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="contact">
+  <div class="wrap">
+    <h2>One platform for your entire business</h2>
+    <p>Start a 14-day free trial. No credit card required.</p>
+    <div class="row">
+      <a class="btn btn-accent" href="#pricing">Start Free Trial</a>
+      <a class="btn btn-ghost" href="#" data-dialog="demo">Request a Demo</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <a class="logo" href="#top" style="color:var(--hero-ink);padding:0"><span>BE SHAD TRADER</span></a>
+        <p class="about">Distribution, inventory and accounting software for distributors, wholesalers and retailers.</p>
+      </div>
+      <div><h4>Product</h4><a href="#features">Features</a><a href="#solutions">Solutions</a><a href="#industries">Industries</a><a href="#pricing">Pricing</a></div>
+      <div><h4>Resources</h4><a href="#demo">Demo</a><a href="#faq">FAQ</a><a href="#security">Security</a><a href="#contact">Contact</a></div>
+      <div><h4>Account</h4><a href="#" data-dialog="login">Login</a><a href="#pricing">Start Free Trial</a><a href="#" data-dialog="demo">Book a Demo</a></div>
+    </div>
+    <div class="legal">
+      <span>© <span id="yr">2026</span> BE SHAD TRADER. All rights reserved.</span>
+      <span class="presented">Presented by <span>Hayeshad Media</span></span>
+    </div>
+  </div>
+</footer>
+
+<dialog id="dlg"><h3 id="dlg-t"></h3><p id="dlg-p"></p><button class="btn btn-brand" id="dlg-x">Close</button></dialog>
+
+<script>
+(function(){
+  var $=function(s,r){return (r||document).querySelector(s)};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  $('#yr').textContent=new Date().getFullYear();
+
+  /* theme */
+  var root=document.documentElement;
+  $('#theme').addEventListener('click',function(){
+    var dark=root.getAttribute('data-theme')==='dark'||(!root.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme:dark)').matches);
+    root.setAttribute('data-theme',dark?'light':'dark');
+  });
+
+  /* mobile nav */
+  var nav=$('#nav'),bg=$('#burger');
+  bg.addEventListener('click',function(){var o=nav.classList.toggle('open');bg.setAttribute('aria-expanded',o)});
+  $$('#nav a').forEach(function(a){a.addEventListener('click',function(){nav.classList.remove('open');bg.setAttribute('aria-expanded',false)})});
+
+  /* dashboard preview (sample data) */
+  var D={
+    today:{s:186400,c:142000,e:21500,r:1284000,ds:'+8.2%',dc:'+5.1%',de:'+2.4%',dr:'-1.9%',bars:[30,44,38,62,55,78,70,92],lbl:'',top:[['Cooking oil 5L','Rs 38,400'],['Basmati rice 10kg','Rs 31,200'],['Tea 950g','Rs 24,900'],['Detergent 1kg','Rs 19,600']]},
+    week:{s:1142000,c:903000,e:118000,r:1310000,ds:'+6.4%',dc:'+4.0%',de:'-3.1%',dr:'-2.2%',bars:[52,60,48,72,66,84,58],top:[['Cooking oil 5L','Rs 241,000'],['Basmati rice 10kg','Rs 198,500'],['Tea 950g','Rs 156,300'],['Sugar 50kg','Rs 121,800']]},
+    month:{s:4780000,c:3960000,e:462000,r:1350000,ds:'+11.7%',dc:'+9.3%',de:'+1.2%',dr:'-4.8%',bars:[40,52,47,60,58,70,66,74,68,80,76,90],top:[['Cooking oil 5L','Rs 1,020,000'],['Basmati rice 10kg','Rs 842,000'],['Tea 950g','Rs 655,400'],['Sugar 50kg','Rs 512,900']]},
+    year:{s:52600000,c:47100000,e:5120000,r:1420000,ds:'+18.5%',dc:'+16.2%',de:'+7.9%',dr:'-9.4%',bars:[38,42,50,46,58,62,60,70,74,72,84,96],top:[['Cooking oil 5L','Rs 11.4M'],['Basmati rice 10kg','Rs 9.3M'],['Tea 950g','Rs 7.2M'],['Sugar 50kg','Rs 5.8M']]}
+  };
+  function fmt(n){return 'Rs '+(n>=1e6?(n/1e6).toFixed(2)+'M':n.toLocaleString('en-PK'))}
+  function setRange(k){
+    var d=D[k];
+    $('#k-sales').textContent=fmt(d.s);$('#k-coll').textContent=fmt(d.c);$('#k-exp').textContent=fmt(d.e);$('#k-rec').textContent=fmt(d.r);
+    $('#d-sales').textContent=d.ds;$('#d-coll').textContent=d.dc;$('#d-exp').textContent=d.de;$('#d-rec').textContent=d.dr;
+    var b=$('#bars');
+    if(b.children.length!==d.bars.length){b.innerHTML=d.bars.map(function(){return '<div style="height:6px"></div>'}).join('')}
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      $$('#bars div').forEach(function(el,i){el.style.height=d.bars[i]+'%'})
+    })});
+    $('#top-list').innerHTML=d.top.map(function(t){return '<li><span>'+t[0]+'</span><b>'+t[1]+'</b></li>'}).join('');
+    $$('#range button').forEach(function(x){x.setAttribute('aria-pressed',x.dataset.r===k)});
+  }
+  $$('#range button').forEach(function(x){x.addEventListener('click',function(){setRange(x.dataset.r)})});
+  setRange('today');
+
+  /* module tabs */
+  var M=[
+    ['Distribution','Take orders in the field and move them through your warehouse to delivery.',['Sales routes and territories','Salesmen, order takers and delivery staff','Van sales and route sales','Customer visits and order scheduling','Picking, packing and dispatch','Proof of delivery and customer signature']],
+    ['Inventory','Know what you have, where it is, and what it is worth.',['Multiple warehouses and transfers','Stock ledger with full audit trail','Batches, expiry dates and serial numbers','Stock count and reconciliation','Low, dead, fast and slow stock reports','Stock valuation']],
+    ['POS','A fast counter screen that keeps working when the queue is long.',['Barcode scanner and product search','Cash, credit and split payments','Discounts and tax','Customer selection','Receipt printing','Keyboard shortcuts']],
+    ['Accounting','Practical books that update as you trade.',['Chart of accounts, cash and bank accounts','Automatic entries from sales, purchases and payments','Journal entries and ledger','Trial balance and profit &amp; loss','Balance sheet and cash flow','Reversals instead of deletions']],
+    ['Sales &amp; purchases','Quotation to invoice, purchase request to goods receipt.',['Quotation, sales order, delivery note, invoice','Sales return and credit note','Purchase order, goods receipt, purchase invoice','Purchase return','Cash, credit and partial payment','Due dates and payment allocation']]
+  ];
+  var mn=$('#modnav'),mp=$('#modpanel');
+  M.forEach(function(m,i){
+    var b=document.createElement('button');b.setAttribute('role','tab');b.innerHTML=m[0];
+    b.addEventListener('click',function(){sel(i)});mn.appendChild(b);
+  });
+  function sel(i){
+    $$('#modnav button').forEach(function(b,j){b.setAttribute('aria-selected',i===j)});
+    var m=M[i];mp.innerHTML='<h3>'+m[0]+'</h3><p>'+m[1]+'</p><ul>'+m[2].map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>';
+  }
+  sel(0);
+
+  /* industries */
+  var I=[
+    ['🚛','Distribution','Routes, order takers, van sales and delivery tracking.'],
+    ['🛍️','Retail','Fast POS, barcode scanning and simple stock control.'],
+    ['🏭','Wholesale','Multiple price levels, credit customers and bulk orders.'],
+    ['🛒','Supermarket','High-volume checkout, categories and expiry tracking.'],
+    ['🏪','General Store','Everyday stock, credit khata and quick billing.'],
+    ['💻','Electronics','Serial numbers, warranties and variants.'],
+    ['👕','Garments','Size and colour variants, seasonal stock.'],
+    ['👟','Shoes','Size runs, brands and returns handling.'],
+    ['💊','Pharmacy','Batch numbers, expiry dates and controlled stock.'],
+    ['🍽️','Restaurant','Ingredient stock, purchases and daily expenses.'],
+    ['🔧','Hardware','Multiple units, heavy items and contractor credit.'],
+    ['⚙️','Spare Parts','Part numbers, compatibility notes and supplier tracking.']
+  ];
+  $('#inds').innerHTML=I.map(function(x){return '<article class="ind"><div class="e" aria-hidden="true">'+x[0]+'</div><h3>'+x[1]+'</h3><p>'+x[2]+'</p><a href="#demo">Learn more</a></article>'}).join('');
+
+  /* pricing (sample, editable from Super Admin later) */
+  var P=[
+    {n:'Starter',d:'For a single shop getting organised.',m:4900,u:'2 users',f:['1 branch, 1 warehouse','500 products','Unlimited invoices','Core reports','Email support'],b:'Start Free Trial'},
+    {n:'Business',d:'For growing shops and small distributors.',m:12900,u:'8 users',f:['3 branches, 3 warehouses','5,000 products','Order taker &amp; salesman apps','Accounting module','Priority email support'],b:'Start Free Trial',pop:1},
+    {n:'Professional',d:'For distributors with teams in the field.',m:29900,u:'25 users',f:['10 branches, 10 warehouses','Unlimited products','Delivery management','Advanced reports and exports','Chat support'],b:'Choose Plan'},
+    {n:'Enterprise',d:'For large operations with custom needs.',m:null,u:'Unlimited users',f:['Unlimited branches and warehouses','API access and integrations','White-label branding','Dedicated onboarding','Dedicated support'],b:'Contact Sales'}
+  ];
+  var yearly=false;
+  function drawPlans(){
+    $('#plans').innerHTML=P.map(function(p){
+      var price=p.m===null?'<div class="price">Custom</div>':'<div class="price">Rs '+Math.round(yearly?p.m*0.8:p.m).toLocaleString('en-PK')+' <small>/ month'+(yearly?', billed yearly':'')+'</small></div>';
+      return '<article class="plan'+(p.pop?' pop':'')+'">'+(p.pop?'<span class="tag">Most popular</span>':'')+'<h3>'+p.n+'</h3><p class="desc">'+p.d+'</p>'+price+'<ul><li>'+p.u+'</li>'+p.f.map(function(f){return '<li>'+f+'</li>'}).join('')+'</ul><a class="btn '+(p.pop?'btn-brand':'btn-ghost')+'" style="'+(p.pop?'':'color:var(--ink)')+'" href="#" data-dialog="'+(p.m===null?'sales':'trial')+'">'+p.b+'</a></article>';
+    }).join('');
+    bindDialogs();
+  }
+  $('#bill').addEventListener('click',function(){yearly=!yearly;this.setAttribute('aria-checked',yearly);drawPlans()});
+
+  /* dialogs */
+  var T={
+    login:['Login opens with the app','The web application (login, dashboard, POS and the rest) is the next build phase after this website.'],
+    demo:['Demo coming with the app','The live demo tenant will open once the application backend is built. This page shows the dashboard preview for now.'],
+    trial:['Free trial opens with the app','Registration and the 14-day trial start once the application backend is live.'],
+    sales:['Contact sales','Enterprise enquiries will use the contact details added to this site before launch.']
+  };
+  var dlg=$('#dlg');
+  function bindDialogs(){
+    $$('[data-dialog]').forEach(function(a){
+      if(a._b)return;a._b=1;
+      a.addEventListener('click',function(e){
+        e.preventDefault();var t=T[a.dataset.dialog];
+        $('#dlg-t').textContent=t[0];$('#dlg-p').textContent=t[1];
+        if(dlg.showModal)dlg.showModal();
+      });
+    });
+  }
+  $('#dlg-x').addEventListener('click',function(){dlg.close()});
+  dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close()});
+  drawPlans();
+})();
+</script>
+</body>
+</html>
